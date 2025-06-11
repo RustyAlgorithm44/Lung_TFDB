@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protein Sequence | Lung TFDB</title>
+    <link rel="icon" href="favicon_io/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css"> <!-- This will be our shared CSS file -->
+    <style>
+        /* Page-specific styles can go here */
+        .data-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        .form-container {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 2rem;
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--card-bg);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        .sequence-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .sequence-text {
+            flex-grow: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .copy-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.3rem;
+            padding: 0.4rem 0.6rem;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        tr:hover .copy-btn {
+            opacity: 1;
+        }
+
+        .copy-btn.copied {
+            background-color: #2ecc71;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .data-container, .form-container {
+                padding: 1rem;
+            }
+            
+            th, td {
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-dna"></i>
+                <span>Lung TFDB</span>
+            </a>
+            
+            <div class="nav-container">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="protein_seq.html" class="nav-link active">Protein Sequence</a></li>
+                    <li><a href="mutations.html" class="nav-link">Mutations</a></li>
+                    <li><a href="binding.html" class="nav-link">Binding Sites</a></li>
+                    <li><a href="scrna.html" class="nav-link">scRNA-seq</a></li>
+                    <li><a href="expr.html" class="nav-link">Expression</a></li>
+                    <li><a href="surv.html" class="nav-link">Survival</a></li>
+                    <li><a href="download.html" class="nav-link">Download</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="data-container">
+        <div class="form-container">
+            <form id="geneForm">
+                <div class="form-group">
+                    <label for="dataset">Choose Dataset:</label>
+                    <select id="dataset" name="dataset">
+                        <option value="">Select Dataset</option>
+                        <option value="all">All datasets</option>
+                        <option value="adeno">Lung Adenocarcinoma (TCGA, PanCancer Atlas)</option>
+                        <option value="squam">Lung Squamous Cell Carcinoma (TCGA, PanCancer Atlas)</option>
+                        <option value="oncosg">Lung Adenocarcinoma (OncoSG, Nat Genet 2020)</option>
+                        <option value="mskcc">Lung Adenocarcinoma Met Organotropism (MSK, Cancer Cell 2023)</option>
+                        <option value="mskcc2020">Lung Adenocarcinoma (MSK, J Thorac Oncol 2020)</option>
+                        <option value="mskcc2022">Metastatic Non-Small Cell Lung Cancer (MSK, Nature Medicine 2022)</option>
+                        <option value="gse102287">GSE102287</option>
+                        <option value="gse14814">GSE14814</option>
+                        <option value="gse157011">GSE157011</option>
+                        <option value="gse19188">GSE19188</option>
+                        <option value="gse29013">GSE29013</option>
+                        <option value="gse30219">GSE30219</option>
+                        <option value="gse31210">GSE31210</option>
+                        <option value="gse3141">GSE3141</option>
+                        <option value="gse37745">GSE37745</option>
+                        <option value="gse4573">GSE4573</option>
+                        <option value="gse50081">GSE50081</option>
+                        <option value="gse68465">GSE68465</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
+        </div>
+
+        <div class="form-container" id="rowsPerPageForm" style="display: none;">
+            <div class="form-group">
+                <label for="rowsPerPage">Rows per page:</label>
+                <select id="rowsPerPage" name="rowsPerPage">
+                    <option value="sel">Select</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="all">All</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="searchGene">Search by Gene:</label>
+                <input type="text" id="searchGene" placeholder="Enter gene name" onkeyup="filterTable()">
+            </div>
+        </div>
+
+        <div id="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading data...</p>
+        </div>
+
+        <div id="proteinSeqTableWrapper" style="display: none;">
+            <h2 class="section-title">Protein Sequences of Transcription Factors</h2>
+            <div class="table-container">
+                <table id="proteinSeqTable">
+                    <thead>
+                        <tr>
+                            <th>Sl No.</th>
+                            <th>Gene name</th>
+                            <th>Protein Sequence</th>
+                            <th>Sequence Length</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table rows will be populated by AJAX response -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Lung TFDB</h3>
+                <p>A comprehensive database for lung cancer transcription factors with integrated multi-omics data and analysis tools.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="download.html">Download</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="#">Documentation</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="#">API Access</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Publications</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2024 SSNCCPR. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script src="js/main.js"></script> <!-- This will be our shared JS file -->
+    <script>
+        $(document).ready(function() {
+            $('#proteinSeqTableWrapper').hide();
+            $('#rowsPerPageForm').hide();
+
+            $('#geneForm').on('submit', function(event) {
+                event.preventDefault();
+                var formData = $(this).serialize();
+                var dataset = $('#dataset').val();
+
+                $('#loading').show();
+
+                $.ajax({
+                    url: 'php/fetch_seq.php',
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        $('#proteinSeqTableWrapper').show();
+                        $('#proteinSeqTable tbody').html(response);
+                        $('#rowsPerPageForm').show();
+                    },
+                    error: function() {
+                        $('#proteinSeqTable tbody').html('<tr><td colspan="4">An error occurred while loading data.</td></tr>');
+                    },
+                    complete: function() {
+                        $('#loading').hide();
+                    }
+                });
+            });
+
+            $('#rowsPerPageForm').on('change', '#rowsPerPage', function() {
+                var rowsPerPage = $(this).val();
+                var dataset = $('#dataset').val();
+
+                $('#loading').show();
+
+                $.ajax({
+                    url: 'php/fetch_seq.php',
+                    type: 'POST',
+                    data: { dataset: dataset, rowsPerPage: rowsPerPage },
+                    success: function(response) {
+                        $('#proteinSeqTable tbody').html(response);
+                    },
+                    error: function() {
+                        $('#proteinSeqTable tbody').html('<tr><td colspan="4">An error occurred while loading data.</td></tr>');
+                    },
+                    complete: function() {
+                        $('#loading').hide();
+                    }
+                });
+            });
+
+            $('#submitBtn').on('click', function() {
+                document.querySelector('footer').style.position = 'relative';
+            });
+        });
+
+        function copySequence(button) {
+            var sequenceText = button.previousElementSibling.textContent;
+            navigator.clipboard.writeText(sequenceText).then(function() {
+                button.classList.add('copied');
+                setTimeout(function() {
+                    button.classList.remove('copied');
+                }, 1000);
+            });
+        }
+
+        function filterTable() {
+            var input = document.getElementById("searchGene");
+            var filter = input.value.toLowerCase();
+            var rowsPerPage = $('#rowsPerPage').val();
+            var dataset = $('#dataset').val();
+
+            $('#loading').show();
+
+            $.ajax({
+                url: 'php/fetch_seq.php',
+                type: 'POST',
+                data: { 
+                    dataset: dataset, 
+                    rowsPerPage: rowsPerPage, 
+                    searchGene: filter
+                },
+                success: function(response) {
+                    $('#proteinSeqTable tbody').html(response);
+                },
+                error: function() {
+                    $('#proteinSeqTable tbody').html('<tr><td colspan="4">An error occurred while filtering data.</td></tr>');
+                },
+                complete: function() {
+                    $('#loading').hide();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

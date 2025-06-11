@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | Lung TFDB</title>
+    <link rel="icon" href="favicon_io/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .contact-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .contact-header {
+            text-align: center;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        .contact-header h1 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Left column - Contact Info */
+        .contact-info {
+            flex: 1;
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        .contact-info p {
+            margin: 1rem 0;
+            line-height: 1.6;
+            color: var(--text-color);
+        }
+
+        .contact-info strong {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .contact-info a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .contact-info a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+
+        /* Right column - Contact Form */
+        .contact-form {
+            flex: 1;
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        .contact-form h2 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .thank-you-message {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        .thank-you-message p {
+            color: var(--text-color);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .thank-you-icon {
+            color: var(--primary-color);
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .contact-container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .contact-info,
+            .contact-form {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-dna"></i>
+                <span>Lung TFDB</span>
+            </a>
+            
+            <div class="nav-container">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="protein_seq.html" class="nav-link">Protein Sequence</a></li>
+                    <li><a href="mutations.html" class="nav-link">Mutations</a></li>
+                    <li><a href="binding.html" class="nav-link">Binding Sites</a></li>
+                    <li><a href="scrna.html" class="nav-link">scRNA-seq</a></li>
+                    <li><a href="expr.html" class="nav-link">Expression</a></li>
+                    <li><a href="surv.html" class="nav-link">Survival</a></li>
+                    <li><a href="download.html" class="nav-link">Download</a></li>
+                    <li><a href="contact.html" class="nav-link active">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="contact-container">
+        <div class="contact-header">
+            <h1>Contact Us</h1>
+        </div>
+
+        <div class="contact-info">
+            <p>
+                <strong>Address:</strong><br>
+                Cancer bioinformatics group, Department of Molecular Oncology,<br>
+                Sri Shankara Cancer Hospital and Research Centre,<br>
+                Sri Shankara National Centre for Cancer Prevention and Research,<br>
+                Sri Shankara Cancer Foundation, Bangalore 560004, India.
+            </p>
+            <p>
+                <strong>Email:</strong> <a href="mailto:akileshwarnamani@ssnccpr.org">akileshwarnamani@ssnccpr.org</a>
+            </p>
+            <p>
+                <strong>Email:</strong> <a href="mailto:guruguhan@ssnccpr.org">guruguhan@ssnccpr.org</a>
+            </p>
+        </div>
+
+        <div class="contact-form">
+            <h2>Send Us a Message</h2>
+            <form id="contactForm">
+                <div class="form-group">
+                    <label for="name">Your Name:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Your Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="subject">Subject:</label>
+                    <input type="text" id="subject" name="subject" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message:</label>
+                    <textarea id="message" name="message" required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </form>
+        </div>
+
+        <div class="thank-you-message" id="thankYouMessage">
+            <div class="thank-you-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <p>Thank you for contacting us. We will get back to you shortly.</p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Lung TFDB</h3>
+                <p>A comprehensive database for lung cancer transcription factors with integrated multi-omics data and analysis tools.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="download.html">Download</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="#">Documentation</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="#">API Access</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Publications</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2024 SSNCCPR. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#contactForm').on('submit', function(event) {
+                event.preventDefault();
+
+                $.ajax({
+                    url: 'php/contact_form.php',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        $('#contactForm').hide();
+                        $('#thankYouMessage').show();
+                    },
+                    error: function() {
+                        alert('Sorry, there was an error submitting your form. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

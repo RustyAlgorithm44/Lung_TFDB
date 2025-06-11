@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Single Cell RNA Seq | Lung TFDB</title>
+    <link rel="icon" href="favicon_io/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .data-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        .form-container {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        #dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: var(--bg-color);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 0.5rem 0.5rem;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        #dropdown .option {
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        #dropdown .option:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        #dropdown.visible {
+            display: block;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .plot-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .plot {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        .plot h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .plot img {
+            width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .plot img:hover {
+            transform: scale(1.02);
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .data-container, .form-container {
+                padding: 1rem;
+            }
+            
+            .plot {
+                width: 100%;
+            }
+            
+            .plot-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-dna"></i>
+                <span>Lung TFDB</span>
+            </a>
+            
+            <div class="nav-container">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="protein_seq.html" class="nav-link">Protein Sequence</a></li>
+                    <li><a href="mutations.html" class="nav-link">Mutations</a></li>
+                    <li><a href="binding.html" class="nav-link">Binding Sites</a></li>
+                    <li><a href="scrna.html" class="nav-link active">scRNA-seq</a></li>
+                    <li><a href="expr.html" class="nav-link">Expression</a></li>
+                    <li><a href="surv.html" class="nav-link">Survival</a></li>
+                    <li><a href="download.html" class="nav-link">Download</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="data-container">
+        <div class="form-container">
+            <form id="geneForm">
+                <div class="form-group">
+                    <label for="dropdownSearch">Choose one or more gene symbols:</label>
+                    <input type="text" id="dropdownSearch" name="geneName" placeholder="Start typing..." autocomplete="off">
+                    <div id="dropdown"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="selectedGenes">Selected Genes:</label>
+                    <input type="text" id="selectedGenes" name="selectedGenes" readonly>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
+        </div>
+
+        <div id="loading">
+            <div class="loading-spinner"></div>
+            <p>Please wait, scRNA results can take a while due to large dataset size.</p>
+            <p>Feel free to explore other features of the website in another tab while the process is ongoing.</p>
+        </div>
+
+        <div id="results"></div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Lung TFDB</h3>
+                <p>A comprehensive database for lung cancer transcription factors with integrated multi-omics data and analysis tools.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="download.html">Download</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="#">Documentation</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="#">API Access</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Publications</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2024 SSNCCPR. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        const dropdownSearch = document.getElementById('dropdownSearch');
+        const dropdown = document.getElementById('dropdown');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const geneForm = document.getElementById('geneForm');
+        const selectedGenes = document.getElementById('selectedGenes');
+        let data = [];
+        let selectedGeneList = [];
+
+        // Fetch table names from the PHP script
+        fetch('php/fetch_scRNAgenes.php') 
+            .then(response => response.json())
+            .then(genes => {
+                data = genes;
+            })
+            .catch(error => {
+                console.error('Error fetching table names:', error);
+            });
+
+        // Function to populate the dropdown with filtered options
+        function populateDropdown(items) {
+            dropdown.innerHTML = '';
+            items.forEach(item => {
+                const option = document.createElement('div');
+                option.classList.add('option');
+                option.textContent = item;
+                option.addEventListener('click', function () {
+                    if (!selectedGeneList.includes(item)) {
+                        selectedGeneList.push(item);
+                        selectedGenes.value = selectedGeneList.join(", ");
+                    }
+                    dropdownSearch.value = '';
+                    dropdown.classList.remove('visible');
+                });
+                dropdown.appendChild(option);
+            });
+        }
+
+        // Filter options based on input
+        dropdownSearch.addEventListener('click', function () {
+            const searchTerm = dropdownSearch.value.toLowerCase();
+            const filteredData = data.filter(item => item.toLowerCase().includes(searchTerm));
+            if (filteredData.length > 0) {
+                populateDropdown(filteredData);
+                dropdown.classList.add('visible');
+            } else {
+                dropdown.classList.remove('visible');
+            }
+        });
+
+        dropdownSearch.addEventListener('input', function() {
+            const searchTerm = dropdownSearch.value.toLowerCase();
+            const filteredData = data.filter(item => item.toLowerCase().includes(searchTerm));
+
+            if (filteredData.length > 0) {
+                populateDropdown(filteredData);
+                dropdown.classList.add('visible');
+            } else {
+                dropdown.classList.remove('visible');
+            }
+        });
+
+        // Close dropdown if clicked outside
+        document.addEventListener('click', function(event) {
+            if (!dropdown.contains(event.target) && event.target !== dropdownSearch) {
+                dropdown.classList.remove('visible');
+            }
+        });
+
+        // Handle form submission with AJAX
+        geneForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(geneForm);
+
+            loading.style.display = 'flex';
+            results.innerHTML = '';
+
+            fetch('php/fetch_scImages.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(response => {
+                const plotContainer = document.createElement('div');
+                plotContainer.classList.add('plot-container');
+
+                if (response.dimplot) {
+                    const dimPlotDiv = document.createElement('div');
+                    dimPlotDiv.classList.add('plot');
+                    dimPlotDiv.innerHTML = `<h3>UMAP Dim Plot</h3>`;
+                    const dimPlotLink = document.createElement('a');
+                    dimPlotLink.href = `data:image/png;base64,${response.dimplot}`;
+                    dimPlotLink.download = 'dimplot.png';
+                    const dimPlotImg = document.createElement('img');
+                    dimPlotImg.src = `data:image/png;base64,${response.dimplot}`;
+                    dimPlotImg.alt = 'UMAP Dim Plot';
+                    dimPlotLink.appendChild(dimPlotImg);
+                    dimPlotDiv.appendChild(dimPlotLink);
+                    plotContainer.appendChild(dimPlotDiv);
+                }
+
+                if (response.featureplot) {
+                    const featurePlotDiv = document.createElement('div');
+                    featurePlotDiv.classList.add('plot');
+                    featurePlotDiv.innerHTML = `<h3>Feature Plot</h3>`;
+                    const featurePlotLink = document.createElement('a');
+                    featurePlotLink.href = `data:image/png;base64,${response.featureplot}`;
+                    featurePlotLink.download = 'featureplot.png';
+                    const featurePlotImg = document.createElement('img');
+                    featurePlotImg.src = `data:image/png;base64,${response.featureplot}`;
+                    featurePlotImg.alt = 'Feature Plot';
+                    featurePlotLink.appendChild(featurePlotImg);
+                    featurePlotDiv.appendChild(featurePlotLink);
+                    plotContainer.appendChild(featurePlotDiv);
+                }
+
+                if (response.vlnplot) {
+                    const vlnPlotDiv = document.createElement('div');
+                    vlnPlotDiv.classList.add('plot');
+                    vlnPlotDiv.innerHTML = `<h3>Violin Plot</h3>`;
+                    const vlnPlotLink = document.createElement('a');
+                    vlnPlotLink.href = `data:image/png;base64,${response.vlnplot}`;
+                    vlnPlotLink.download = 'vlnplot.png';
+                    const vlnPlotImg = document.createElement('img');
+                    vlnPlotImg.src = `data:image/png;base64,${response.vlnplot}`;
+                    vlnPlotImg.alt = 'Violin Plot';
+                    vlnPlotLink.appendChild(vlnPlotImg);
+                    vlnPlotDiv.appendChild(vlnPlotLink);
+                    plotContainer.appendChild(vlnPlotDiv);
+                }
+
+                results.appendChild(plotContainer);
+            })
+            .catch(() => {
+                results.innerHTML = '<p style="color: var(--primary-color);">An error occurred while loading the plots.</p>';
+            })
+            .finally(() => {
+                loading.style.display = 'none';
+            });
+        });
+        
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            document.querySelector('footer').style.position = 'relative';
+        });
+    </script>
+</body>
+</html>

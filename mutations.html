@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mutation info | Lung TFDB</title>
+    <link rel="icon" href="favicon_io/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .data-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        .form-container {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>') no-repeat right 10px center;
+            background-color: var(--bg-color);
+            padding-right: 30px;
+            cursor: pointer;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        #geneDropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: var(--bg-color);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 0.5rem 0.5rem;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        #geneDropdown option {
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        #geneDropdown option:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .results-container {
+            margin-top: 2rem;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            border-radius: 0.8rem;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        .pdf-container {
+            width: 100%;
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pdf-container embed {
+            width: 100%;
+            max-width: 800px;
+            height: 800px;
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        @media (max-width: 768px) {
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .pdf-container embed {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-dna"></i>
+                <span>Lung TFDB</span>
+            </a>
+            
+            <div class="nav-container">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="protein_seq.html" class="nav-link">Protein Sequence</a></li>
+                    <li><a href="mutations.html" class="nav-link active">Mutations</a></li>
+                    <li><a href="binding.html" class="nav-link">Binding Sites</a></li>
+                    <li><a href="scrna.html" class="nav-link">scRNA-seq</a></li>
+                    <li><a href="expr.html" class="nav-link">Expression</a></li>
+                    <li><a href="surv.html" class="nav-link">Survival</a></li>
+                    <li><a href="download.html" class="nav-link">Download</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="data-container">
+        <div class="form-container">
+            <form id="geneForm">
+                <div class="form-group">
+                    <label for="dataset">Choose Dataset:</label>
+                    <select id="dataset" name="dataset">
+                        <option value="">Select Dataset</option>
+                        <option value="all">All datasets</option>
+                        <option value="adeno">Lung Adenocarcinoma (TCGA, PanCancer Atlas)</option>
+                        <option value="squam">Lung Squamous Cell Carcinoma (TCGA, PanCancer Atlas)</option>
+                        <option value="oncosg">Lung Adenocarcinoma (OncoSG, Nat Genet 2020)</option>
+                        <option value="mskcc">Lung Adenocarcinoma Met Organotropism (MSK, Cancer Cell 2023)</option>
+                        <option value="mskcc2020">Lung Adenocarcinoma (MSK, J Thorac Oncol 2020)</option>
+                        <option value="mskcc2022_adeno">Metastatic Non-Small Cell Lung Cancer (MSK, Nature Medicine 2022) - Adenocarcinoma</option>
+                        <option value="mskcc2022_squam">Metastatic Non-Small Cell Lung Cancer (MSK, Nature Medicine 2022) - Squamous Cell Carcinoma</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="geneName">Enter TF Symbol:</label>
+                    <input type="text" id="geneName" name="geneName" autocomplete="off">
+                    <select id="geneDropdown" size="5"></select>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn" id="submitBtn">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <button type="button" class="btn" id="oncoplotBtn">
+                        <i class="fas fa-chart-bar"></i> Generate Oncoplot
+                    </button>
+                    <button type="button" class="btn" id="downloadCsvBtn">
+                        <i class="fas fa-download"></i> Download CSV
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="loading">
+            <div class="loading-spinner"></div>
+            <p>Processing your request...</p>
+        </div>
+
+        <div class="results-container" id="results"></div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Lung TFDB</h3>
+                <p>A comprehensive database for lung cancer transcription factors with integrated multi-omics data and analysis tools.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="download.html">Download</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="#">Documentation</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="#">API Access</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Publications</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2024 SSNCCPR. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        $(document).ready(function(){
+            function fetchGenes(dataset) {
+                $.ajax({
+                    url: 'php/fetch_genes.php',
+                    type: 'POST',
+                    data: { dataset: dataset },
+                    success: function(response) {
+                        let geneList = JSON.parse(response);
+                        $('#geneName').data('geneList', geneList);
+                    },
+                    error: function() {
+                        console.error('Error fetching genes.');
+                    }
+                });
+            }
+
+            $('#dataset').change(function(){
+                let dataset = $(this).val();
+                if (dataset) {
+                    fetchGenes(dataset);
+                }
+            });
+
+            function matchGene(input, geneList) {
+                return geneList.filter(gene => gene.toLowerCase().includes(input.toLowerCase()));
+            }
+
+            $('#geneName').on('input', function(){
+                let inputVal = $(this).val();
+                let geneList = $(this).data('geneList') || [];
+                let matches = matchGene(inputVal, geneList);
+                let dropdown = $('#geneDropdown');
+                dropdown.empty();
+                matches.forEach(match => {
+                    dropdown.append('<option value="' + match + '">' + match + '</option>');
+                });
+                if (matches.length > 0) {
+                    dropdown.show();
+                } else {
+                    dropdown.hide();
+                }
+            });
+
+            $('#geneDropdown').on('click', 'option', function(){
+                var selectedValue = $(this).val();
+                $('#geneName').val(selectedValue);
+                $('#geneDropdown').hide();
+            });
+
+            $('#geneForm').on('submit', function(event) {
+                event.preventDefault();
+                var dataset = $('#dataset').val();
+                var geneName = $('#geneName').val();
+
+                if (!dataset || !geneName) {
+                    alert("Please select a dataset and enter a gene name.");
+                    return;
+                }
+
+                $('#loading').show();
+
+                $.ajax({
+                    url: 'php/fetch_mutations.php',
+                    type: 'POST',
+                    data: { dataset: dataset, geneName: geneName },
+                    success: function(response) {
+                        $('#results').html(response);
+                        wrapTextWithCommas();
+                    },
+                    error: function() {
+                        $('#results').html('<p style="color:red;">An error occurred while fetching mutations.</p>');
+                    },
+                    complete: function() {
+                        $('#loading').hide();
+                    }
+                });
+            });
+
+            function wrapTextWithCommas() {
+                $('#results table td').each(function() {
+                    var cellText = $(this).html();
+                    if (cellText.includes(',')) {
+                        var wrappedText = cellText.split(',').join(',<br>');
+                        $(this).html(wrappedText);
+                    }
+                    else if (cellText.includes(':')) {
+                        var wrappedText = cellText.split(':').join('<br>');
+                        $(this).html(wrappedText);
+                    }
+                });
+            }
+
+            $('#submitBtn').on('click', function() {
+                document.querySelector('footer').style.position = 'relative';
+            });
+            
+            $('#oncoplotBtn').on('click', function() {
+                var dataset = $('#dataset').val();
+                document.querySelector('footer').style.position = 'relative';
+                if (!dataset) {
+                    alert('Please select a dataset.');
+                    return;
+                }
+
+                $('#loading').show();
+
+                $.ajax({
+                    url: 'php/generate_oncoplot.php',
+                    type: 'POST',
+                    data: { dataset: dataset },
+                    success: function(response) {
+                        console.log(response);
+                        try {
+                            let data = JSON.parse(response);
+                            if (data.pdfFile) {
+                                $('#results').html(`
+                                    <div class="pdf-container">
+                                        <h3>Mutation Plots (PDF)</h3>
+                                        <embed src="${data.pdfFile}" width="100%" height="800px" type="application/pdf">
+                                    </div>
+                                `);
+                            } else {
+                                $('#results').html('<p style="color:red;">No valid PDF plot was generated.</p>');
+                            }
+                        } catch (e) {
+                            console.error('Error parsing JSON:', e);
+                            $('#results').html('<p style="color:red;">Error displaying the PDF plot.</p>');
+                        }
+                    },
+                    error: function() {
+                        $('#results').html('<p style="color:red;">An error occurred while generating Oncoplot.</p>');
+                    },
+                    complete: function() {
+                        $('#loading').hide();
+                    }
+                });
+            });
+
+            $('#downloadCsvBtn').on('click', function() {
+                downloadCSV();
+            });
+
+            function downloadCSV() {
+                var table = document.querySelector('#results table');
+                if (!table) {
+                    alert('No table available to download.');
+                    return;
+                }
+
+                var geneName = $('#geneName').val().trim();
+                if (!geneName) {
+                    geneName = 'unknown_gene';
+                }
+
+                var filename = 'mutation_data_' + geneName + '.csv';
+                var rows = table.querySelectorAll('tr');
+                var csv = [];
+
+                rows.forEach(function(row) {
+                    var cols = row.querySelectorAll('td, th');
+                    var rowData = [];
+                    cols.forEach(function(col) {
+                        rowData.push('"' + col.innerText.replace(/"/g, '""') + '"');
+                    });
+                    csv.push(rowData.join(','));
+                });
+
+                var csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
+                var downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(csvFile);
+                downloadLink.download = filename;
+                downloadLink.click();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survival Analysis | Lung TFDB</title>
+    <link rel="icon" href="favicon_io/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .data-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        .form-container {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>') no-repeat right 10px center;
+            background-color: var(--bg-color);
+            padding-right: 30px;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        #geneDropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: var(--bg-color);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 0.5rem 0.5rem;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        #geneDropdown option {
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        #geneDropdown option:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .results-container {
+            margin-top: 2rem;
+            width: 100%;
+        }
+
+        .plot-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .plot {
+            flex: 1 1 45%;
+            min-width: 300px;
+            max-width: 600px;
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .plot:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .plot img {
+            width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+        }
+
+        .plot-title {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .data-message {
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        @media (max-width: 768px) {
+            .plot {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-dna"></i>
+                <span>Lung TFDB</span>
+            </a>
+            
+            <div class="nav-container">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="protein_seq.html" class="nav-link">Protein Sequence</a></li>
+                    <li><a href="mutations.html" class="nav-link">Mutations</a></li>
+                    <li><a href="binding.html" class="nav-link">Binding Sites</a></li>
+                    <li><a href="scrna.html" class="nav-link">scRNA-seq</a></li>
+                    <li><a href="expr.html" class="nav-link">Expression</a></li>
+                    <li><a href="surv.html" class="nav-link active">Survival</a></li>
+                    <li><a href="download.html" class="nav-link">Download</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="data-container">
+        <div class="form-container">
+            <form id="geneForm">
+                <div class="form-group">
+                    <label for="dataset">Select Dataset:</label>
+                    <select id="dataset" name="dataset">
+                        <option value="">Select Dataset</option>
+                        <option value="adeno">Lung Adenocarcinoma (TCGA, PanCancer Atlas)</option>
+                        <option value="squam">Lung Squamous Cell Carcinoma (TCGA, PanCancer Atlas)</option>
+                        <option value="oncosg">Lung Adenocarcinoma (OncoSG, Nat Genet 2020)</option>
+                        <option value="mskcc">Lung Adenocarcinoma Met Organotropism (MSK, Cancer Cell 2023)</option>
+                        <option value="mskcc2020">Lung Adenocarcinoma (MSK, J Thorac Oncol 2020)</option>
+                        <option value="mskcc2022_adeno">Metastatic Non-Small Cell Lung Cancer (MSK, Nature Medicine 2022) - Adenocarcinoma</option>
+                        <option value="mskcc2022_squam">Metastatic Non-Small Cell Lung Cancer (MSK, Nature Medicine 2022) - Squamous cell carcinoma</option>
+                        <option value="gse102287">GSE102287</option>
+                        <option value="gse14814_adeno">GSE14814 - Adenocarcinoma</option>
+                        <option value="gse14814_squam">GSE14814 - Squamous Cell Carcinoma</option>
+                        <option value="gse157011">GSE157011 (Squamous Cell Carcinoma)</option>
+                        <option value="gse19188_adeno">GSE19188 - Adenocarcinoma</option>
+                        <option value="gse19188_squam">GSE19188 - Squamous Cell Carcinoma</option>
+                        <option value="gse29013_adeno">GSE29013 - Adenocarcinoma</option>
+                        <option value="gse29013_squam">GSE29013 - Squamous Cell Carcinoma</option>
+                        <option value="gse30219_adeno">GSE30219 - Adenocarcinoma</option>
+                        <option value="gse30219_squam">GSE30219 - Squamous Cell Carcinoma</option>
+                        <option value="gse31210">GSE31210</option>
+                        <option value="gse3141_adeno">GSE3141 - Adenocarcinoma</option>
+                        <option value="gse3141_squam">GSE3141 - Squamous Cell Carcinoma</option>
+                        <option value="gse37745_adeno">GSE37745 - Adenocarcinoma</option>
+                        <option value="gse37745_squam">GSE37745 - Squamous Cell Carcinoma</option>
+                        <option value="gse4573">GSE4573 (Squamous Cell Carcinoma)</option>
+                        <option value="gse50081_adeno">GSE50081 - Adenocarcinoma</option>
+                        <option value="gse50081_squam">GSE50081 - Squamous Cell Carcinoma</option>
+                        <option value="gse68465">GSE68465</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="geneName">Enter TF Symbol:</label>
+                    <input type="text" id="geneName" name="geneName" autocomplete="off">
+                    <select id="geneDropdown" size="5"></select>
+                </div>
+                <div class="form-group">
+                    <label for="analysisType">Survival based on:</label>
+                    <select id="analysisType" name="analysisType">
+                        <option value="">Select</option>
+                        <option value="mut">Mutation</option>
+                        <option value="expr">Expression</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-chart-line"></i> Analyze Survival
+                </button>
+            </form>
+        </div>
+
+        <div id="loading">
+            <div class="loading-spinner"></div>
+            <p>Analyzing survival data...</p>
+        </div>
+
+        <div class="results-container" id="results"></div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Lung TFDB</h3>
+                <p>A comprehensive database for lung cancer transcription factors with integrated multi-omics data and analysis tools.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="download.html">Download</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="#">Documentation</a></li>
+                </ul>
+            </div>
+			
+			<div class="footer-column">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="#">API Access</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Publications</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2024 SSNCCPR. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        $(document).ready(function() {
+		function fetchGenes(dataset) {
+			$.ajax({
+				url: 'php/fetch_genes.php',
+				type: 'POST',
+				data: { dataset: dataset },
+				success: function(response) {
+					let geneList = JSON.parse(response);
+					$('#geneName').data('geneList', geneList);
+				},
+				error: function() {
+					console.error('Error fetching genes.');
+				}
+			});
+		}
+
+		$('#dataset').change(function() {
+			let dataset = $(this).val();
+			if (dataset) {
+				fetchGenes(dataset);
+			}
+			checkAnalysisAndDataset();
+		});
+
+		$('#analysisType').change(function() {
+			checkAnalysisAndDataset();
+		});
+
+		function checkAnalysisAndDataset() {
+			let analysisType = $('#analysisType').val();
+			let dataset = $('#dataset').val();
+			if (analysisType === 'expr' && dataset === 'mskcc' || analysisType === 'expr' && dataset === 'mskcc2020' || analysisType === 'expr' && dataset === 'mskcc2022_adeno' || analysisType === 'expr' && dataset === 'mskcc2022_squam') {
+				$('#results').html("No expression data available for this dataset.");
+			} 
+			else if (analysisType === 'mut' && dataset === 'gse102287' || analysisType === 'mut' && dataset === 'gse14814_adeno'|| analysisType === 'mut' && dataset === 'gse14814_squam' || analysisType === 'mut' && dataset === 'gse157011' || analysisType === 'mut' && dataset === 'gse19188_adeno' || analysisType === 'mut' && dataset === 'gse19188_squam' || analysisType === 'mut' && dataset === 'gse29013_adeno' || analysisType === 'mut' && dataset === 'gse29013_squam' || analysisType === 'mut' && dataset === 'gse30219_adeno' || analysisType === 'mut' && dataset === 'gse30219_squam' || analysisType === 'mut' && dataset === 'gse3141_adeno' || analysisType === 'mut' && dataset === 'gse3141_squam' || analysisType === 'mut' && dataset === 'gse4573' || analysisType === 'mut' && dataset === 'gse50081_adeno'|| analysisType === 'mut' && dataset === 'gse50081_squam') {
+				$('#results').html("No mutation data available for this dataset.");
+			} else {
+				$('#results').html(""); // Clear the message
+			}
+		}
+
+		function matchGene(input, geneList) {
+			return geneList.filter(gene => gene.toLowerCase().includes(input.toLowerCase()));
+		}
+
+		$('#geneName').on('input', function() {
+			let inputVal = $(this).val();
+			let geneList = $(this).data('geneList') || [];
+			let matches = matchGene(inputVal, geneList);
+			let dropdown = $('#geneDropdown');
+			dropdown.empty();
+			matches.forEach(match => {
+				dropdown.append('<option value="' + match + '">' + match + '</option>');
+			});
+			if (matches.length > 0) {
+				dropdown.show();
+			} else {
+				dropdown.hide();
+			}
+		});
+
+		$('#geneDropdown').on('click', function() {
+			var selectedValue = $(this).val();
+			console.log('Selected Value:', selectedValue); // Debugging: log the selected value
+			$('#geneName').val(selectedValue); // Update geneName input with selected value
+			$('#geneDropdown').hide(); // Hide the dropdown after selection
+		});
+
+		$('#geneForm').on('submit', function(event) {
+			event.preventDefault();
+			$('#loading').show();
+			$.ajax({
+				url: 'php/analyze_surv.php',
+				type: 'POST',
+				data: $(this).serialize(),
+				success: function(response) {
+					$('#results').html(response);
+					$('#loading').hide();
+				},
+				error: function() {
+					$('#results').html('An error occurred.');
+					$('#loading').hide();
+				}
+			});
+		});
+
+		$('#geneName').focus(function() {
+			let inputVal = $(this).val();
+			let geneList = $(this).data('geneList') || [];
+			if (inputVal && geneList.length > 0) {
+				$('#geneDropdown').show();
+			}
+		});
+
+		$('#geneName').blur(function() {
+			if (!$(this).is(":focus")) {
+				setTimeout(function() {
+					$('#geneDropdown').hide();
+				}, 200);
+			}
+		});
+
+		$('#geneDropdown').on('click', 'option', function() {
+			var selectedValue = $(this).val();
+			$('#geneName').val(selectedValue); // Update geneName input with selected value
+			$('#geneDropdown').hide(); // Hide the dropdown after selection
+		});
+		
+		document.getElementById('submitBtn').addEventListener('click', function() {
+		document.querySelector('footer').style.position = 'relative';
+		});
+	});
+    </script>
+</body>
+</html>

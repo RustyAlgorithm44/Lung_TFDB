@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binding Regions | Lung TFDB</title>
+    <link rel="icon" href="favicon_io/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .data-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        .form-container {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            border-radius: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        #dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: var(--bg-color);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 0.5rem 0.5rem;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        #dropdown .option {
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        #dropdown .option:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        #dropdown.visible {
+            display: block;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .results-container {
+            margin-top: 2rem;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            border-radius: 0.8rem;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .pagination-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .pagination-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .data-container, .form-container {
+                padding: 1rem;
+            }
+            
+            th, td {
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-dna"></i>
+                <span>Lung TFDB</span>
+            </a>
+            
+            <div class="nav-container">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="protein_seq.html" class="nav-link">Protein Sequence</a></li>
+                    <li><a href="mutations.html" class="nav-link">Mutations</a></li>
+                    <li><a href="binding.html" class="nav-link active">Binding Sites</a></li>
+                    <li><a href="scrna.html" class="nav-link">scRNA-seq</a></li>
+                    <li><a href="expr.html" class="nav-link">Expression</a></li>
+                    <li><a href="surv.html" class="nav-link">Survival</a></li>
+                    <li><a href="download.html" class="nav-link">Download</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="data-container">
+        <div class="form-container">
+            <form id="geneForm">
+                <div class="form-group">
+                    <label for="dropdownSearch">Enter TF symbol:</label>
+                    <input type="text" id="dropdownSearch" name="geneName" placeholder="Start typing..." autocomplete="off">
+                    <div id="dropdown"></div>
+                </div>
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
+        </div>
+
+        <div id="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading data...</p>
+        </div>
+
+        <div id="filterDiv" style="display: none;">
+            <div class="form-group">
+                <label for="geneFilter">Filter by Gene:</label>
+                <input type="text" id="geneFilter" placeholder="Filter by Gene" autocomplete="on">
+            </div>
+        </div>
+
+        <div class="pagination-controls" id="paginationControls" style="display: none;">
+            <button class="pagination-btn" id="prevPage">Previous</button>
+            <button class="pagination-btn" id="nextPage">Next</button>
+        </div>
+
+        <div class="results-container" id="results"></div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Lung TFDB</h3>
+                <p>A comprehensive database for lung cancer transcription factors with integrated multi-omics data and analysis tools.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="download.html">Download</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="#">Documentation</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="#">API Access</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Publications</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2024 SSNCCPR. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        const dropdownSearch = document.getElementById('dropdownSearch');
+        const dropdown = document.getElementById('dropdown');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const geneForm = document.getElementById('geneForm');
+        const filterDiv = document.getElementById('filterDiv');
+        const paginationControls = document.getElementById('paginationControls');
+        let data = [];
+        let currentPage = 1;
+        const rowsPerPage = 100;
+        let totalPages = 1;
+
+        // Fetch table names from the PHP script
+        fetch('php/fetch_tables.php') 
+            .then(response => response.json())
+            .then(tables => {
+                data = tables;
+            })
+            .catch(error => {
+                console.error('Error fetching table names:', error);
+            });
+
+        // Function to populate the dropdown with filtered options
+        function populateDropdown(items) {
+            dropdown.innerHTML = '';
+            items.forEach(item => {
+                const option = document.createElement('div');
+                option.classList.add('option');
+                option.textContent = item;
+                option.addEventListener('click', function () {
+                    dropdownSearch.value = item;
+                    dropdown.classList.remove('visible');
+                });
+                dropdown.appendChild(option);
+            });
+        }
+
+        // Filter options based on input
+        dropdownSearch.addEventListener('click', function () {
+            const searchTerm = dropdownSearch.value.toLowerCase();
+            const filteredData = data.filter(item => item.toLowerCase().includes(searchTerm));
+            if (filteredData.length > 0) {
+                populateDropdown(filteredData);
+                dropdown.classList.add('visible');
+            } else {
+                dropdown.classList.remove('visible');
+            }
+        });
+
+        dropdownSearch.addEventListener('input', function() {
+            const searchTerm = dropdownSearch.value.toLowerCase();
+            const filteredData = data.filter(item => item.toLowerCase().includes(searchTerm));
+
+            if (filteredData.length > 0) {
+                populateDropdown(filteredData);
+                dropdown.classList.add('visible');
+            } else {
+                dropdown.classList.remove('visible');
+            }
+        });
+
+        // Close dropdown if clicked outside
+        document.addEventListener('click', function(event) {
+            if (!dropdown.contains(event.target) && event.target !== dropdownSearch) {
+                dropdown.classList.remove('visible');
+            }
+        });
+
+        // Handle form submission with AJAX
+        geneForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(geneForm);
+            const geneName = formData.get('geneName');
+
+            // Show the filter textbox and pagination controls after submitting
+            filterDiv.style.display = 'block';
+            paginationControls.style.display = 'flex';
+            
+            fetchData(geneName, currentPage);
+        });
+
+        // Fetch data based on the gene name and page number
+        function fetchData(geneName, page) {
+            loading.style.display = 'block';
+
+            fetch('php/fetch_sites.php', {
+                method: 'POST',
+                body: new URLSearchParams({
+                    geneName: geneName,
+                    page: page,
+                    limit: rowsPerPage,
+                    filterGene: document.getElementById('geneFilter').value
+                })
+            })
+            .then(response => response.text())
+            .then(response => {
+                results.innerHTML = response;
+                totalPages = calculateTotalPages(response);
+                updatePaginationControls();
+            })
+            .catch(() => {
+                results.innerHTML = 'An error occurred while fetching data.';
+            })
+            .finally(() => {
+                loading.style.display = 'none';
+            });
+        }
+
+        // Update pagination controls
+        function updatePaginationControls() {
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        // Pagination controls
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                fetchData(dropdownSearch.value, currentPage);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                fetchData(dropdownSearch.value, currentPage);
+            }
+        });
+
+        // Filter the table based on gene input
+        document.getElementById('geneFilter').addEventListener('input', function() {
+            fetchData(dropdownSearch.value, currentPage);
+        });
+
+        // Extract total pages from response
+        function calculateTotalPages(response) {
+            // This is a placeholder - adjust based on your actual response format
+            // For example, if your PHP script returns the total count, use that
+            return Math.ceil(1000 / rowsPerPage); // Example - replace with actual logic
+        }
+
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            document.querySelector('footer').style.position = 'relative';
+        });
+    </script>
+</body>
+</html>
