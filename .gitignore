@@ -3,3 +3,4 @@ files/
 admin/db_connect_admin.php
 admin/admin_users.sql
 php/db_connect.php
+php/python_output.log
