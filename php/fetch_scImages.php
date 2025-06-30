@@ -17,6 +17,12 @@ if (!isset($_POST['annotationType']) || empty(trim($_POST['annotationType']))) {
     exit;
 }
 
+// Check if dataset name is provided
+if (!isset($_POST['datasetName']) || empty(trim($_POST['datasetName']))) {
+    echo json_encode(['error' => 'Dataset name is required']);
+    exit;
+}
+
 // Split the genes string by commas and clean whitespace
 $genes = explode(',', $_POST['selectedGenes']);
 $genes = array_map('trim', $genes); // Trim whitespace
@@ -24,10 +30,46 @@ $genes = array_map('trim', $genes); // Trim whitespace
 // Get the selected annotation type
 $annotationType = $_POST['annotationType'];
 
+// Get the selected dataset name
+$datasetName = $_POST['datasetName'];
+
 // Validate gene input
 if (empty($genes) || count($genes) === 0) {
     echo json_encode(['error' => 'Invalid gene input']);
     exit;
+}
+
+// Define a mapping from dataset names to their respective RDS files
+$datasetRDSMap = [
+    'Data_Bischoff2021_Lung' => '../files/scrna_seq/bischoff2021_lung.rds',
+    'Data_Chan2021_Lung'     => '../files/scrna_seq/chan2021_lung.rds',
+    'Data_Guo2018_Lung'      => '../files/scrna_seq/guo2018_lung.rds',
+    'Data_Kim2020_Lung'      => '../files/scrna_seq/kim2020_lung.rds',
+    'Data_Laughney2020_Lung' => '../files/scrna_seq/laughney2020_lung.rds',
+    'Data_Maynard2020_Lung'  => '../files/scrna_seq/maynard2020_lung.rds',
+    'Data_Qian2020_Lung'     => '../files/scrna_seq/qian2020_lung.rds',
+    'Data_Song2019_Lung'     => '../files/scrna_seq/song2019_lung.rds',
+    'Data_Xing2021_Lung'     => '../files/scrna_seq/xing2021_lung.rds',
+    'Data_Zilionis2019_Lung' => '../files/scrna_seq/zilionis2019_lung.rds',
+    '10xGenomics'            => '../files/scrna_seq/10xGenomics.rds',
+    // Add more datasets as needed
+];
+
+// Validate if the provided datasetName exists in our map
+if (!array_key_exists($datasetName, $datasetRDSMap)) {
+    echo json_encode(['error' => 'Invalid dataset name provided for RDS file.']);
+    exit;
+}
+
+$rdsFilePath = $datasetRDSMap[$datasetName];
+
+// Determine the actual annotation column to use in R
+$rAnnotationColumn = '';
+if ($annotationType === 'DefaultAnnotation') {
+    // For "Default annotation", you need to know the default column name in your Seurat object.
+    $rAnnotationColumn = 'cell_type';
+} else {
+    $rAnnotationColumn = $annotationType;
 }
 
 // Define paths
@@ -42,10 +84,11 @@ $rScriptContent = "
 library(Seurat)
 library(ggplot2)
 library(jsonlite)
+library(readr)
 library(base64enc) # Ensure this library is loaded for base64 encoding
 
 # Load Seurat object
-nsclc.seurat.obj <- readRDS('../files/scrna_seq/human_references_annotated_seurat_obj.rds')
+nsclc.seurat.obj <- read_rds('" . $rdsFilePath . "')
 
 # Create temporary files for base64 encoding
 temp_dir <- tempdir()
@@ -53,7 +96,7 @@ temp_dir <- tempdir()
 # DimPlot
 dimplot_file <- tempfile(pattern = 'dimplot_', tmpdir = temp_dir, fileext = '.png')
 png(dimplot_file, width = 7.2, height = 6, units = 'in', res = 300)
-DimPlot(nsclc.seurat.obj, reduction = 'umap', group.by = '" . $annotationType . "', label = TRUE, repel = TRUE)
+DimPlot(nsclc.seurat.obj, reduction = 'umap', group.by = '" . $rAnnotationColumn . "', label = TRUE, repel = TRUE)
 invisible(dev.off())
 dimplot_base64 <- base64encode(dimplot_file)
 unlink(dimplot_file)
@@ -69,7 +112,7 @@ unlink(featureplot_file)
 # VlnPlot
 vlnplot_file <- tempfile(pattern = 'vlnplot_', tmpdir = temp_dir, fileext = '.png')
 png(vlnplot_file, width = 7.2, height = 6, units = 'in', res = 300)
-VlnPlot(nsclc.seurat.obj, features = c('" . implode("', '", $genes) . "'), group.by = '" . $annotationType . "')
+VlnPlot(nsclc.seurat.obj, features = c('" . implode("', '", $genes) . "'), group.by = '" . $rAnnotationColumn . "')
 invisible(dev.off())
 vlnplot_base64 <- base64encode(vlnplot_file)
 unlink(vlnplot_file)

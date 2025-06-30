@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <style>
+        /* ... (existing CSS remains the same) ... */
         .data-container {
             max-width: 1400px;
             margin: 2rem auto;
@@ -261,13 +262,32 @@
         <div class="form-container">
             <form id="geneForm">
                 <div class="form-group">
+                    <label for="datasetSelect">Choose Dataset:</label>
+                    <select id="datasetSelect" name="datasetName">
+                        <option value="">Select a dataset</option>
+                        <option value="Data_Bischoff2021_Lung">Bischoff et al. 2021</option>
+                        <option value="Data_Chan2021_Lung">Chan et al. 2021</option>
+                        <option value="Data_Guo2018_Lung">Guo et al. 2018</option>
+                        <option value="Data_Kim2020_Lung">Kim et al. 2020</option>
+                        <option value="Data_Laughney2020_Lung">Laughney et al. 2020</option>
+                        <option value="Data_Maynard2020_Lung">Maynard et al. 2020</option>
+                        <option value="Data_Qian2020_Lung">Qian et al. 2020</option>
+                        <option value="Data_Song2019_Lung">Song et al. 2019</option>
+                        <option value="Data_Xing2021_Lung">Xing et al. 2021</option>
+                        <option value="Data_Zilionis2019_Lung">Zilionis et al. 2019</option>
+                        <option value="10xGenomics">20k Mixture of NSCLC DTCs from 7 donors</option>
+                        <!-- Add more options for your datasets here -->
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="dropdownSearch">Choose one or more gene symbols:</label>
-                    <input type="text" id="dropdownSearch" name="geneName" placeholder="Start typing..." autocomplete="off">
+                    <input type="text" id="dropdownSearch" name="geneName" placeholder="Start typing..." autocomplete="off" disabled>
                     <div id="dropdown"></div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="selectedGenes">Selected Genes:</label> <!-- Updated to reference the hidden input -->
+                    <label for="selectedGenes">Selected Genes:</label>
                     <div id="selectedGenesContainer" class="selected-genes-container">
                         <!-- Selected gene tags will be added here -->
                     </div>
@@ -276,8 +296,9 @@
 
                 <div class="form-group">
                     <label for="annotationType">Choose Annotation Type:</label>
-                    <select id="annotationType" name="annotationType">
+                    <select id="annotationType" name="annotationType" disabled>
                         <option value="">Choose an option</option>
+                        <option value="DefaultAnnotation">Default annotation</option>
                         <option value="ClusterAnnotation_HPA">Human Protein Atlas</option>
                         <option value="ClusterAnnotation_Blueprint">Blueprint</option>
                         <option value="ClusterAnnotation_Monaco">Monaco</option>
@@ -285,7 +306,7 @@
                     </select>
                 </div>
                 
-                <button type="submit" class="submit-btn" id="submitBtn">
+                <button type="submit" class="submit-btn" id="submitBtn" disabled>
                     <i class="fas fa-search"></i> Search
                 </button>
             </form>
@@ -346,20 +367,61 @@
         const loading = document.getElementById('loading');
         const results = document.getElementById('results');
         const geneForm = document.getElementById('geneForm');
-        const selectedGenesInput = document.getElementById('selectedGenes'); // Hidden input for form submission
-        const selectedGenesContainer = document.getElementById('selectedGenesContainer'); // Div to display tags
-        let data = [];
+        const selectedGenesInput = document.getElementById('selectedGenes');
+        const selectedGenesContainer = document.getElementById('selectedGenesContainer');
+        const datasetSelect = document.getElementById('datasetSelect'); // New dataset select element
+        const annotationTypeSelect = document.getElementById('annotationType'); // Annotation select element
+        const submitBtn = document.getElementById('submitBtn'); // Submit button
+
+        let data = []; // Stores genes for the currently selected dataset
         let selectedGeneList = [];
 
-        // Fetch table names from the PHP script
-        fetch('php/fetch_scRNAgenes.php') 
-            .then(response => response.json())
-            .then(genes => {
-                data = genes;
-            })
-            .catch(error => {
-                console.error('Error fetching table names:', error);
-            });
+        // Function to enable/disable form elements
+        function toggleFormElements(enable) {
+            dropdownSearch.disabled = !enable;
+            annotationTypeSelect.disabled = !enable;
+            submitBtn.disabled = !enable;
+        }
+
+        // Initially disable gene search and annotation type until a dataset is selected
+        toggleFormElements(false);
+
+        // Event listener for dataset selection change
+        datasetSelect.addEventListener('change', function() {
+            const selectedDataset = this.value;
+            selectedGeneList = []; // Clear selected genes when dataset changes
+            updateSelectedGenesDisplay(); // Update display
+
+            if (selectedDataset) {
+                toggleFormElements(true); // Enable other elements
+                dropdownSearch.value = ''; // Clear gene search input
+                dropdown.classList.remove('visible'); // Hide dropdown
+                annotationTypeSelect.value = ''; // Reset annotation type
+
+                // Fetch genes for the selected dataset
+                fetch(`php/fetch_scRNAgenes.php?datasetName=${selectedDataset}`)
+                    .then(response => response.json())
+                    .then(genes => {
+                        if (genes.error) {
+                            console.error('Error fetching genes:', genes.error);
+                            data = []; // Clear data on error
+                            alert('Error fetching genes for this dataset: ' + genes.error);
+                            toggleFormElements(false); // Disable if error
+                        } else {
+                            data = genes;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Network error fetching genes:', error);
+                        data = []; // Clear data on network error
+                        alert('Network error fetching genes. Please try again.');
+                        toggleFormElements(false); // Disable if error
+                    });
+            } else {
+                toggleFormElements(false); // Disable if no dataset selected
+                data = []; // Clear gene data
+            }
+        });
 
         // Function to update the displayed gene tags and hidden input
         function updateSelectedGenesDisplay() {
@@ -376,6 +438,13 @@
         // Function to populate the dropdown with filtered options
         function populateDropdown(items) {
             dropdown.innerHTML = '';
+            if (items.length === 0) {
+                const noResults = document.createElement('div');
+                noResults.classList.add('option');
+                noResults.textContent = 'No matching genes found.';
+                dropdown.appendChild(noResults);
+                return;
+            }
             items.forEach(item => {
                 const option = document.createElement('div');
                 option.classList.add('option');
@@ -394,6 +463,7 @@
 
         // Filter options based on input
         dropdownSearch.addEventListener('click', function () {
+            if (this.disabled) return; // Do nothing if disabled
             const searchTerm = dropdownSearch.value.toLowerCase();
             const filteredData = data.filter(item => item.toLowerCase().includes(searchTerm));
             if (filteredData.length > 0) {
@@ -405,6 +475,7 @@
         });
 
         dropdownSearch.addEventListener('input', function() {
+            if (this.disabled) return; // Do nothing if disabled
             const searchTerm = dropdownSearch.value.toLowerCase();
             const filteredData = data.filter(item => item.toLowerCase().includes(searchTerm));
 
@@ -435,7 +506,23 @@
         // Handle form submission with AJAX
         geneForm.addEventListener('submit', function(event) {
             event.preventDefault();
+
+            // Basic validation before submission
+            if (!datasetSelect.value) {
+                alert('Please select a dataset.');
+                return;
+            }
+            if (selectedGeneList.length === 0) {
+                alert('Please select at least one gene.');
+                return;
+            }
+            if (!annotationTypeSelect.value) {
+                alert('Please choose an annotation type.');
+                return;
+            }
+
             const formData = new FormData(geneForm);
+            formData.append('datasetName', datasetSelect.value); // Add selected dataset to form data
 
             loading.style.display = 'flex';
             results.innerHTML = '';
@@ -446,6 +533,14 @@
             })
             .then(response => response.json())
             .then(response => {
+                if (response.error) {
+                    results.innerHTML = `<p style="color: var(--primary-color);">Error: ${response.error}</p>`;
+                    if (response.debug) {
+                        console.error('Backend Debug Info:', response.debug);
+                    }
+                    return;
+                }
+
                 const plotContainer = document.createElement('div');
                 plotContainer.classList.add('plot-container');
 
@@ -496,8 +591,9 @@
 
                 results.appendChild(plotContainer);
             })
-            .catch(() => {
-                results.innerHTML = '<p style="color: var(--primary-color);">An error occurred while loading the plots.</p>';
+            .catch((error) => {
+                console.error('Fetch error:', error);
+                results.innerHTML = '<p style="color: var(--primary-color);">An error occurred while loading the plots. Please check console for details.</p>';
             })
             .finally(() => {
                 loading.style.display = 'none';
