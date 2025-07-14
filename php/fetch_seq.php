@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 echo "<td class='max-width-td'>";
                 echo "<div class='sequence-container'>";
                 echo "<span class='sequence-text'>" . $row['protein_sequence'] . "</span>";
-                echo "<button class='copy-button' onclick='copySequence(this)'>Copy</button>";
+                echo "<button class='copy-btn' onclick='copySequence(this)'>Copy</button>";
                 echo "</div>";
                 echo "</td>";
                 echo "<td>" . $sequenceLength . "</td>";
@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 echo "<td class='max-width-td'>";
                 echo "<div class='sequence-container'>";
                 echo "<span class='sequence-text'>" . $row['protein_sequence'] . "</span>";
-                echo "<button class='copy-button' onclick='copySequence(this)'>Copy</button>";
+                echo "<button class='copy-btn' onclick='copySequence(this)'>Copy</button>";
                 echo "</div>";
                 echo "</td>";
                 echo "<td>" . $sequenceLength . "</td>";

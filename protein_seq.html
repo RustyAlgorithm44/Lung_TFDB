@@ -161,6 +161,63 @@
                 padding: 0.8rem;
             }
         }
+
+        .max-width-td {
+            max-width: 800px;
+            overflow: hidden;
+        }
+
+        .sequence-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sequence-text {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .copy-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .copy-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .copy-button.copied {
+            background-color: #2ecc71;
+        }
+
+        /* Update the existing copy-btn styles to match */
+        .copy-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+            opacity: 1; /* Make it always visible */
+            margin-left: 0.5rem;
+        }
+
+        tr:hover .copy-btn {
+            opacity: 1; /* Keep it consistent */
+        }
     </style>
 </head>
 <body>
@@ -251,7 +308,7 @@
         </div>
 
         <div id="proteinSeqTableWrapper" style="display: none;">
-            <h2 class="section-title">Protein Sequences of Transcription Factors</h2>
+            <h3 class="section-title">Protein Sequences of Transcription Factors</h3>
             <div class="table-container">
                 <table id="proteinSeqTable">
                     <thead>
@@ -370,13 +427,17 @@
         function copySequence(button) {
             var sequenceText = button.previousElementSibling.textContent;
             navigator.clipboard.writeText(sequenceText).then(function() {
+                button.textContent = 'Copied!';
                 button.classList.add('copied');
                 setTimeout(function() {
+                    button.textContent = 'Copy';
                     button.classList.remove('copied');
-                }, 1000);
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
             });
         }
-
+        
         function filterTable() {
             var input = document.getElementById("searchGene");
             var filter = input.value.toLowerCase();
