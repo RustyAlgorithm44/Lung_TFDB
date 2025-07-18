@@ -259,6 +259,7 @@
     </header>
 
     <main class="data-container">
+        <!-- In scrna.html, modify the form-container section -->
         <div class="form-container">
             <form id="geneForm">
                 <div class="form-group">
@@ -276,7 +277,6 @@
                         <option value="Data_Xing2021_Lung">Xing et al. 2021</option>
                         <option value="Data_Zilionis2019_Lung">Zilionis et al. 2019</option>
                         <option value="10xGenomics">20k Mixture of NSCLC DTCs from 7 donors</option>
-                        <!-- Add more options for your datasets here -->
                     </select>
                 </div>
 
@@ -298,12 +298,23 @@
                     <label for="annotationType">Choose Annotation Type:</label>
                     <select id="annotationType" name="annotationType" disabled>
                         <option value="">Choose an option</option>
-                        <option value="DefaultAnnotation">Default annotation</option>
-                        <option value="ClusterAnnotation_HPA">Human Protein Atlas</option>
-                        <option value="ClusterAnnotation_Blueprint">Blueprint</option>
-                        <option value="ClusterAnnotation_Monaco">Monaco</option>
-                        <option value="ClusterAnnotation_DICE">DICE</option>
+                        <!-- Options will be populated dynamically -->
                     </select>
+                </div>
+
+                <!-- Add these new checkboxes -->
+                <div class="form-group" id="sourceOptions" style="display: none;">
+                    <label>Filter by Source:</label>
+                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="tumorOnly" name="tumorOnly">
+                            Show Tumor Only
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="groupBySource" name="groupBySource">
+                            Group by Source (Tumor/Normal)
+                        </label>
+                    </div>
                 </div>
                 
                 <button type="submit" class="submit-btn" id="submitBtn" disabled>
@@ -315,7 +326,6 @@
         <div id="loading">
             <div class="loading-spinner"></div>
             <p>Please wait, scRNA results can take a while due to large dataset size.</p>
-            <p>Feel free to explore other features of the website in another tab while the process is ongoing.</p>
         </div>
 
         <div id="results"></div>
@@ -372,6 +382,8 @@
         const datasetSelect = document.getElementById('datasetSelect'); // New dataset select element
         const annotationTypeSelect = document.getElementById('annotationType'); // Annotation select element
         const submitBtn = document.getElementById('submitBtn'); // Submit button
+        const tumorOnlyCheckbox = document.getElementById('tumorOnly'); // New: Tumor Only checkbox
+        const groupBySourceCheckbox = document.getElementById('groupBySource'); // New: Group by Source checkbox
 
         let data = []; // Stores genes for the currently selected dataset
         let selectedGeneList = [];
@@ -381,6 +393,9 @@
             dropdownSearch.disabled = !enable;
             annotationTypeSelect.disabled = !enable;
             submitBtn.disabled = !enable;
+            // Also manage the checkboxes based on dataset selection
+            tumorOnlyCheckbox.disabled = !enable;
+            groupBySourceCheckbox.disabled = !enable;
         }
 
         // Initially disable gene search and annotation type until a dataset is selected
@@ -391,13 +406,73 @@
             const selectedDataset = this.value;
             selectedGeneList = []; // Clear selected genes when dataset changes
             updateSelectedGenesDisplay(); // Update display
-
+            
+            // Hide source options by default
+            document.getElementById('sourceOptions').style.display = 'none';
+            document.getElementById('sourceOptions').style.display = 'none';
+            tumorOnlyCheckbox.checked = false;
+            groupBySourceCheckbox.checked = false;
+            tumorOnlyCheckbox.disabled = true; // Disable them until dataset dictates
+            groupBySourceCheckbox.disabled = true; // Disable them until dataset dictates
+            
             if (selectedDataset) {
                 toggleFormElements(true); // Enable other elements
                 dropdownSearch.value = ''; // Clear gene search input
                 dropdown.classList.remove('visible'); // Hide dropdown
-                annotationTypeSelect.value = ''; // Reset annotation type
-
+                
+                // Update annotation type dropdown based on dataset
+                const annotationTypeSelect = document.getElementById('annotationType');
+                annotationTypeSelect.innerHTML = ''; // Clear existing options
+                
+                // Add default option
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Choose an option';
+                annotationTypeSelect.appendChild(defaultOption);
+                
+                // Add options based on dataset
+                if (selectedDataset !== '10xGenomics') {
+                    // Show source options for non-10x datasets
+                    document.getElementById('sourceOptions').style.display = 'block';
+                    tumorOnlyCheckbox.disabled = false;
+                    groupBySourceCheckbox.disabled = false;
+                    
+                    // Add all annotation options
+                    const annotationOptions = [
+                        {value: 'DefaultAnnotation', text: 'Default annotation'},
+                        {value: 'ClusterAnnotation_HPA', text: 'Human Protein Atlas'},
+                        {value: 'ClusterAnnotation_Blueprint', text: 'Blueprint'},
+                        {value: 'ClusterAnnotation_Monaco', text: 'Monaco'},
+                        {value: 'ClusterAnnotation_DICE', text: 'DICE'}
+                    ];
+                    
+                    annotationOptions.forEach(option => {
+                        const optElement = document.createElement('option');
+                        optElement.value = option.value;
+                        optElement.textContent = option.text;
+                        annotationTypeSelect.appendChild(optElement);
+                    });
+                } else {
+                    // For 10xGenomics, exclude DefaultAnnotation
+                    document.getElementById('sourceOptions').style.display = 'none'; // Hide
+                    tumorOnlyCheckbox.disabled = true; // Ensure disabled
+                    groupBySourceCheckbox.disabled = true; // Ensure disabled
+                    
+                    const annotationOptions = [
+                        {value: 'ClusterAnnotation_HPA', text: 'Human Protein Atlas'},
+                        {value: 'ClusterAnnotation_Blueprint', text: 'Blueprint'},
+                        {value: 'ClusterAnnotation_Monaco', text: 'Monaco'},
+                        {value: 'ClusterAnnotation_DICE', text: 'DICE'}
+                    ];
+                    
+                    annotationOptions.forEach(option => {
+                        const optElement = document.createElement('option');
+                        optElement.value = option.value;
+                        optElement.textContent = option.text;
+                        annotationTypeSelect.appendChild(optElement);
+                    });
+                }
+                
                 // Fetch genes for the selected dataset
                 fetch(`php/fetch_scRNAgenes.php?datasetName=${selectedDataset}`)
                     .then(response => response.json())
@@ -420,6 +495,25 @@
             } else {
                 toggleFormElements(false); // Disable if no dataset selected
                 data = []; // Clear gene data
+            }
+        });
+
+        // New: Mutually exclusive checkbox logic
+        tumorOnlyCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                groupBySourceCheckbox.checked = false;
+                groupBySourceCheckbox.disabled = true; // Disable the other
+            } else {
+                groupBySourceCheckbox.disabled = false; // Re-enable the other
+            }
+        });
+
+        groupBySourceCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                tumorOnlyCheckbox.checked = false;
+                tumorOnlyCheckbox.disabled = true; // Disable the other
+            } else {
+                tumorOnlyCheckbox.disabled = false; // Re-enable the other
             }
         });
 
@@ -522,7 +616,13 @@
             }
 
             const formData = new FormData(geneForm);
-            formData.append('datasetName', datasetSelect.value); // Add selected dataset to form data
+            formData.append('datasetName', datasetSelect.value);
+            
+            // Add the new parameters
+            const tumorOnly = document.getElementById('tumorOnly').checked;
+            const groupBySource = document.getElementById('groupBySource').checked;
+            formData.append('tumorOnly', tumorOnlyCheckbox.checked ? 'true' : 'false');
+            formData.append('groupBySource', groupBySourceCheckbox.checked ? 'true' : 'false');
 
             loading.style.display = 'flex';
             results.innerHTML = '';
@@ -587,6 +687,42 @@
                     vlnPlotLink.appendChild(vlnPlotImg);
                     vlnPlotDiv.appendChild(vlnPlotLink);
                     plotContainer.appendChild(vlnPlotDiv);
+                }
+
+                // Add the dot plot if available
+                if (response.dotplot) {
+                    const dotPlotDiv = document.createElement('div');
+                    dotPlotDiv.classList.add('plot');
+                    dotPlotDiv.innerHTML = `<h3>Dot Plot</h3>`;
+                    const dotPlotLink = document.createElement('a');
+                    dotPlotLink.href = `data:image/png;base64,${response.dotplot}`;
+                    dotPlotLink.download = 'dotplot.png';
+                    const dotPlotImg = document.createElement('img');
+                    dotPlotImg.src = `data:image/png;base64,${response.dotplot}`;
+                    dotPlotImg.alt = 'Dot Plot';
+                    dotPlotLink.appendChild(dotPlotImg);
+                    dotPlotDiv.appendChild(dotPlotLink);
+                    plotContainer.appendChild(dotPlotDiv);
+                }
+
+                // In the form submission handler, modify the source plot display logic
+                if (response.sourceplot && groupBySourceCheckbox.checked) {
+                    try {
+                        const sourcePlotDiv = document.createElement('div');
+                        sourcePlotDiv.classList.add('plot');
+                        sourcePlotDiv.innerHTML = `<h3>UMAP by Source (Tumor/Normal)</h3>`;
+                        const sourcePlotLink = document.createElement('a');
+                        sourcePlotLink.href = `data:image/png;base64,${response.sourceplot}`;
+                        sourcePlotLink.download = 'source_dimplot.png';
+                        const sourcePlotImg = document.createElement('img');
+                        sourcePlotImg.src = `data:image/png;base64,${response.sourceplot}`;
+                        sourcePlotImg.alt = 'Source Dim Plot';
+                        sourcePlotLink.appendChild(sourcePlotImg);
+                        sourcePlotDiv.appendChild(sourcePlotLink);
+                        plotContainer.appendChild(sourcePlotDiv);
+                    } catch (e) {
+                        console.error('Error displaying source plot:', e);
+                    }
                 }
 
                 results.appendChild(plotContainer);

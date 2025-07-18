@@ -88,7 +88,10 @@ $violinImage = $tempDir . '/violin.png';
 $boxImage = $tempDir . '/box.png';
 
 $rCode = "
-.libPaths('C:/Users/Lung-TFDB/AppData/Local/R/win-library/4.5')
+.libPaths(c(
+  'C:/Users/Lung-TFDB/AppData/Local/R/win-library/4.5',
+  'C:/Users/Guruguhan/AppData/Local/R/win-library/4.5'
+))
 args <- commandArgs(trailingOnly = TRUE)
 data_file <- args[1]
 violin_image <- args[2]

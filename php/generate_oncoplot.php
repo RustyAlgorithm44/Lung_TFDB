@@ -57,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     mysqli_close($conn);
 
     // Write R script file to generate PDF
-    $rCode = ".libPaths('C:/Users/Lung-TFDB/AppData/Local/R/win-library/4.5')\n" .
+    $rCode = ".libPaths(c('C:/Users/Lung-TFDB/AppData/Local/R/win-library/4.5', 'C:/Users/Guruguhan/AppData/Local/R/win-library/4.5'))\n" .
         "library(maftools)\n" .
         "maf <- read.maf(maf='$tsvFile')\n" .
         "pdf('$pdfFile', width=9, height=6)\n" .
