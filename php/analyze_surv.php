@@ -442,7 +442,8 @@ if ($analysisType === 'mut') {
     // Prepare Python script for survival analysis
     $pythonScript = "
 import sys
-sys.path.append(r'C:\Users\Lung-TFDB\AppData\Local\Programs\Python\Python313\Lib\site-packages')
+# sys.path.append(r'C:\Users\Lung-TFDB\AppData\Local\Programs\Python\Python313\Lib\site-packages')
+sys.path.append(r'C:\Users\Guruguhan\AppData\Roaming\Python\Python312\site-packages')
 import json
 import pandas as pd
 from lifelines import KaplanMeierFitter
@@ -533,7 +534,7 @@ if '$dataset' != 'oncosg':
     $command = "python " . escapeshellarg($scriptFile);
     // $command = "\"C:\\Users\\Lung-TFDB\\AppData\\Local\\Programs\\Python\\Python313\\python.exe\" " . escapeshellarg($scriptFile);
     $output = shell_exec($command . ' 2>&1'); // Capture both stdout and stderr
-    file_put_contents('python_output.log', $output); // Write the output to a log file
+    file_put_contents('../plots/survival_output_log.log', $output); // Write the output to a log file
 
     	echo "<div class='plot-container'>";
 	foreach ($plotFiles as $type => $plotFile) {

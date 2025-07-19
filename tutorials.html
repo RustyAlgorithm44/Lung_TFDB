@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorials | Lung TFDB</title>
+    <link rel="icon" href="favicon_io/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-lungs"></i>
+                <span>Lung TFDB</span>
+            </a>
+            
+            <div class="nav-container">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="protein_seq.html" class="nav-link">Protein Sequence</a></li>
+                    <li><a href="mutations.html" class="nav-link">Mutations</a></li>
+                    <li><a href="binding.html" class="nav-link">Binding Sites</a></li>
+                    <li><a href="scrna.html" class="nav-link">scRNA-seq</a></li>
+                    <li><a href="expr.html" class="nav-link">Expression</a></li>
+                    <li><a href="surv.html" class="nav-link">Survival</a></li>
+                    <li><a href="download.html" class="nav-link">Download</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="tutorials-content">
+            <h1 class="section-title">Tutorials</h1>
+            
+            <div class="tutorial-section">
+                <h2>Getting Started</h2>
+                <p>Welcome to the Lung TFDB! This tutorial will guide you through the basic features of our database.</p>
+                <ol>
+                    <li>Navigate through the different sections using the navigation bar at the top of the page.</li>
+                    <li>Each section provides a unique set of tools and data for analyzing transcription factors in lung cancer.</li>
+                    <li>Use the search and filter options to find the specific information you are looking for.</li>
+                </ol>
+            </div>
+
+            <div class="tutorial-section">
+                <h2>How to Search</h2>
+                <p>Our search functionality is designed to be intuitive and powerful.</p>
+                <ul>
+                    <li><strong>Gene Search:</strong> In sections like "Mutations" and "Expression," you can search for a specific gene by entering its name in the search box.</li>
+                    <li><strong>Filter by Dataset:</strong> You can filter the data by selecting a specific dataset from the dropdown menu.</li>
+                    <li><strong>Advanced Filters:</strong> Some sections may offer advanced filtering options to further refine your search results.</li>
+                </ul>
+            </div>
+
+            <div class="tutorial-section">
+                <h2>Analyzing Data</h2>
+                <p>Lung TFDB provides several tools for data analysis.</p>
+                <ul>
+                    <li><strong>Survival Analysis:</strong> In the "Survival" section, you can generate Kaplan-Meier plots to visualize the impact of TF expression on patient survival.</li>
+                    <li><strong>Expression Analysis:</strong> In the "Expression" section, you can compare TF expression levels between tumor and normal tissues using violin and box plots.</li>
+                    <li><strong>scRNA-seq Analysis:</strong> In the "scRNA-seq" section, you can explore TF expression at the single-cell level using UMAPs, feature plots, and violin plots.</li>
+                </ul>
+            </div>
+
+            <div class="tutorial-section">
+                <h2>Downloading Data</h2>
+                <p>You can download data for offline analysis.</p>
+                <ol>
+                    <li>Go to the "Download" section.</li>
+                    <li>Select the dataset you want to download.</li>
+                    <li>Click the "Download" button to save the data to your computer.</li>
+                </ol>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Lung TFDB</h3>
+                <p>A comprehensive database for lung cancer transcription factors with integrated multi-omics data and analysis tools.</p>
+                <div class="social-links">
+                    <a href="https://akkis-lab.github.io/ott-lab/index.html"><i class="fa-solid fa-globe"></i></a>
+                    <a href="https://www.linkedin.com/in/guruguhan-s/"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/RustyAlgorithm44/Lung_TFDB"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="download.html">Download</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="documentation.html">Documentation</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="#">API Access</a></li>
+                    <li><a href="tutorials.html">Tutorials</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="#">Publications</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2025 SSNCCPR. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

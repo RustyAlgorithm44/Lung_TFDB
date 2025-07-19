@@ -127,13 +127,13 @@ violin_plot <- ggplot(data, aes(x = type, y = expression, fill = type)) +
   geom_violin(trim = FALSE, alpha = 0.7) +
   scale_fill_manual(values = c('#66CCCC', '#FF9999'), labels = legend_labels) +  
   labs(x = NULL, y = 'Expression', fill = 'Type') +
-  theme_minimal() +
+  theme_test() +
   theme(legend.position = 'bottom', legend.title = element_text(size = 10), legend.text = element_text(size = 8),
         axis.text.x = element_blank(), axis.text.y = element_text(size = 10), 
         axis.title.x = element_text(size = 12), axis.title.y = element_text(size = 12),
         plot.title = element_text(hjust = 0.5, size = 16)) +
   stat_compare_means(method = stat_method, label.x = 1.18, label.y = max_expression + 0.06 * max_expression, size = 3.5) +
-  annotate('text', x = 2.33, y = max_expression + 0.015 * max_expression, 
+  annotate('text', x = 2.32, y = max_expression + 0.015 * max_expression, 
            label = fold_change_label, size = 3.5, color = 'black')
 
 # Add jitter if selected by the user
@@ -148,13 +148,13 @@ box_plot <- ggplot(data, aes(x = type, y = expression, fill = type)) +
   geom_boxplot(alpha = 0.7, color = 'black', size = 0.5, position = position_dodge(width = 0.75)) +
   scale_fill_manual(values = c('#66CCCC', '#FF9999'), labels = legend_labels) +
   labs(x = NULL, y = 'Expression', fill = 'Type') +
-  theme_minimal() +
+  theme_test() +
   theme(legend.position = 'bottom', legend.title = element_text(size = 10), legend.text = element_text(size = 8),
         axis.text.x = element_blank(), axis.text.y = element_text(size = 10), 
         axis.title.x = element_text(size = 12), axis.title.y = element_text(size = 12),
         plot.title = element_text(hjust = 0.5, size = 16)) +
   stat_compare_means(method = stat_method, label.x = 1.18, label.y = max_expression + 0.06 * max_expression, size = 3.5) + 
-  annotate('text', x = 2.33, y = max_expression + 0.02 * max_expression, 
+  annotate('text', x = 2.32, y = max_expression + 0.02 * max_expression, 
            label = fold_change_label, size = 3.5, color = 'black')
 
 # Add jitter to box plot if selected
