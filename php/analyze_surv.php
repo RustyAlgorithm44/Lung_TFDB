@@ -235,17 +235,17 @@ if ($analysisType === 'expr') {
 
     // Paths to save the plots
     $plotFiles = [
-        'OS' => '../plots/survival_plot_os.png'
+        'OS' => '../plots/' . $geneName . '_survival_plot_os.png'
     ];
 
     if ($dataset !== 'oncosg') {
-    $plotFiles['DSS'] = '../plots/survival_plot_dss.png';
-    $plotFiles['DFS'] = '../plots/survival_plot_dfs.png';
-    $plotFiles['PFS'] = '../plots/survival_plot_pfs.png';
+    $plotFiles['DSS'] = '../plots/' . $geneName . '_survival_plot_dss.png';
+    $plotFiles['DFS'] = '../plots/' . $geneName . '_survival_plot_dfs.png';
+    $plotFiles['PFS'] = '../plots/' . $geneName . '_survival_plot_pfs.png';
 	}
 	
 	if ($dataset === 'gse31210' || $dataset === 'gse37745_adeno' || $dataset === 'gse37745_squam' || $dataset === 'gse50081_adeno' || $dataset === 'gse50081_squam' || $dataset === 'gse68465') {
-    $plotFiles['RFS'] = '../plots/survival_plot_rfs.png';
+    $plotFiles['RFS'] = '../plots/' . $geneName . '_survival_plot_rfs.png';
 	}
 
 	// Delete the previous plot files if they exist
@@ -366,8 +366,15 @@ elif '$dataset' != 'oncosg':
 			// Extract the file name to use in the download attribute
 			$fileName = basename($plotFile);
 			echo "<div class='plot'><h3>Survival Analysis Plot for " . htmlspecialchars($type) . "</h3>";
-			// Include geneName in the download attribute
-			echo "<a href='$plotFile' download='" . htmlspecialchars($geneName) . "_$fileName'><img src='data:image/png;base64," . base64_encode(file_get_contents($plotFile)) . "' alt='Survival Analysis Plot ($type)'></a>";
+			
+            // Include geneName in the download attribute
+            $imageData = file_get_contents($plotFile);
+            $base64Image = base64_encode($imageData);
+
+            // Delete the file immediately after reading and encoding
+            unlink($plotFile);
+
+			echo "<a href='data:image/png;base64,$base64Image' download='" . htmlspecialchars($fileName) . "'><img src='data:image/png;base64,$base64Image' alt='Survival Analysis Plot ($type)'></a>";
 			echo "</div>";
 		}
 	}
@@ -419,17 +426,17 @@ if ($analysisType === 'mut') {
 
     // Paths to save the plots
     $plotFiles = [
-        'OS' => '../plots/survival_plot_os.png'
+        'OS' => '../plots/' . $geneName . '_survival_plot_os.png'
     ];
 
     if ($dataset !== 'oncosg') {
-    $plotFiles['DSS'] = '../plots/survival_plot_dss.png';
-    $plotFiles['DFS'] = '../plots/survival_plot_dfs.png';
-    $plotFiles['PFS'] = '../plots/survival_plot_pfs.png';
+    $plotFiles['DSS'] = '../plots/' . $geneName . '_survival_plot_dss.png';
+    $plotFiles['DFS'] = '../plots/' . $geneName . '_survival_plot_dfs.png';
+    $plotFiles['PFS'] = '../plots/' . $geneName . '_survival_plot_pfs.png';
 	}
     
     if ($dataset === 'mskcc2020') {
-        $plotFiles['RFS'] = '../plots/survival_plot_pfs.png';
+        $plotFiles['RFS'] = '../plots/' . $geneName . '_survival_plot_rfs.png';
     }
 
     // Delete the previous plot files if they exist
@@ -442,7 +449,7 @@ if ($analysisType === 'mut') {
     // Prepare Python script for survival analysis
     $pythonScript = "
 import sys
-# sys.path.append(r'C:\Users\Lung-TFDB\AppData\Local\Programs\Python\Python313\Lib\site-packages')
+sys.path.append(r'C:\Users\Lung-TFDB\AppData\Local\Programs\Python\Python313\Lib\site-packages')
 sys.path.append(r'C:\Users\Guruguhan\AppData\Roaming\Python\Python312\site-packages')
 import json
 import pandas as pd
@@ -542,8 +549,15 @@ if '$dataset' != 'oncosg':
 			// Extract the file name to use in the download attribute
 			$fileName = basename($plotFile);
 			echo "<div class='plot'><h3>Survival Analysis Plot for " . htmlspecialchars($type) . "</h3>";
+
 			// Include geneName in the download attribute
-			echo "<a href='$plotFile' download='" . htmlspecialchars($geneName) . "_$fileName'><img src='data:image/png;base64," . base64_encode(file_get_contents($plotFile)) . "' alt='Survival Analysis Plot ($type)'></a>";
+            $imageData = file_get_contents($plotFile);
+            $base64Image = base64_encode($imageData);
+
+            // Delete the file immediately after reading and encoding
+            unlink($plotFile);
+            
+			echo "<a href='data:image/png;base64,$base64Image' download='" . htmlspecialchars($fileName) . "'><img src='data:image/png;base64,$base64Image' alt='Survival Analysis Plot ($type)'></a>";
 			echo "</div>";
 		}
 	}
