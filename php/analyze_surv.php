@@ -259,6 +259,7 @@ if ($analysisType === 'expr') {
     $pythonScript = "
 import sys
 sys.path.append(r'C:\Users\Lung-TFDB\AppData\Local\Programs\Python\Python313\Lib\site-packages')
+sys.path.append(r'C:\Users\Guruguhan\AppData\Roaming\Python\Python312\site-packages')
 import json
 import pandas as pd
 from lifelines import KaplanMeierFitter
