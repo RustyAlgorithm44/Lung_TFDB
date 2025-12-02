@@ -75,4 +75,62 @@ document.addEventListener('DOMContentLoaded', function() {
             link.classList.add('active');
         }
     });
+
+    // Toggle reply form visibility
+    $('.reply-btn').on('click', function() {
+        $(this).closest('.message-card').find('.reply-form-container').slideToggle();
+    });
+
+    // Handle email sending (frontend part)
+    $('.reply-email-form').on('submit', function(event) {
+        event.preventDefault();
+        var form = $(this);
+        var messageId = form.data('message-id');
+        var toEmail = form.find('.reply-to').val();
+        var fromEmail = form.find('.reply-from').val();
+        var ccEmail = form.find('.reply-cc').val();
+        var subject = form.find('.reply-subject').val();
+        var messageBody = form.find('.reply-message').val();
+        var replyBtn = form.closest('.message-card').find('.reply-btn');
+
+        // For now, just log the email details and update UI
+        console.log('--- Sending Email ---');
+        console.log('To:', toEmail);
+        console.log('From:', fromEmail);
+        console.log('CC:', ccEmail);
+        console.log('Subject:', subject);
+        console.log('Message:', messageBody);
+        console.log('---------------------');
+
+        // In a real application, you would send this data to a backend PHP script
+        // that uses a mail library (like PHPMailer) to send the email.
+        // For demonstration, we\'ll just show an alert and mark as replied.
+
+        alert('Email simulated to be sent! (Check console for details)');
+
+        // Mark as replied in the database
+        $.ajax({
+            url: 'admin_update_reply_status.php',
+            type: 'POST',
+            data: {
+                id: messageId,
+                action: 'mark_replied'
+            },
+            success: function(response) {
+                if (response === 'Success') {
+                    // Update UI immediately
+                    form.closest('.reply-form-container').slideUp();
+                    form.closest('.message-card').addClass('replied');
+                    replyBtn.html('<i class="fas fa-reply"></i> Replied');
+                    // Optionally, reload to see sorting changes
+                    location.reload();
+                } else {
+                    alert('Error updating reply status: ' + response);
+                }
+            },
+            error: function() {
+                alert('Error communicating with server to update reply status.');
+            }
+        });
+    });
 });

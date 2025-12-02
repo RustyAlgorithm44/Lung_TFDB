@@ -50,11 +50,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="../css/styles.css">
     <style>
         body {
+            /* Removed centering styles from body */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-color);
+        }
+
+        main {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background-color: var(--bg-color);
+            padding: 2rem;
         }
 
         .login-container {
@@ -65,7 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			border-radius: 0.8rem;
 			box-shadow: var(--shadow);
 			text-align: center;
-			margin: 1rem;
+			margin: 1rem; /* Add margin for spacing */
 		}
 
 		/* Make it a bit narrower on small screens */
@@ -138,27 +146,83 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-top: 1rem;
             font-weight: 500;
         }
+        
+        .nav-menu-admin {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu-admin {
+                display: none;
+                flex-direction: column;
+                gap: 1.5rem;
+                background-color: var(--nav-bg);
+                position: absolute;
+                top: 70px;
+                right: 1rem;
+                padding: 1.5rem;
+                border-radius: 0.5rem;
+                box-shadow: var(--shadow);
+                width: 200px;
+                align-items: stretch;
+            }
+            .nav-menu-admin.active {
+                display: flex;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1>Admin Login</h1>
-        <?php if ($login_error): ?>
-            <p class="error-message"><?php echo $login_error; ?></p>
-        <?php endif; ?>
-        <form method="POST" action="admin_login.php">
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
+    <header>
+        <div class="header-container">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-dna"></i>
+                <span>Lung TFDB</span>
+            </a>
+            <div class="nav-container">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="nav-menu-admin" id="navMenu">
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit" class="submit-btn">
-                <i class="fas fa-sign-in-alt"></i> Login
-            </button>
-        </form>
-    </div>
+        </div>
+    </header>
+    <main>
+        <div class="login-container">
+            <h1>Admin Login</h1>
+            <?php if ($login_error): ?>
+                <p class="error-message"><?php echo $login_error; ?></p>
+            <?php endif; ?>
+            <form method="POST" action="admin_login.php">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+        </div>
+    </main>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Mobile menu toggle
+            $('#menuToggle').on('click', function() {
+                $('#navMenu').toggleClass('active');
+            });
+        });
+    </script>
 </body>
 </html>

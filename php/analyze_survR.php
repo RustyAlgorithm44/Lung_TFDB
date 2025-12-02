@@ -341,76 +341,82 @@ run_analysis <- function(time_col, status_col, type, output_file) {
     # Filter missing data
     sub_data <- data[!is.na(data[[time_col]]) & !is.na(data[[status_col]]), ]
     
-    print(paste("Processing type:", type))
-    print(paste("Time col:", time_col, "Status col:", status_col))
-    print("Class of sub_data:")
-    print(class(sub_data))
-    print("Unique status values before processing:")
-    print(unique(sub_data[[status_col]]))
-    
+    if(nrow(sub_data) < 5) { return(NULL) }
+
     # Ensure status is numeric (0/1)
-    # Handle cases where status might be "1:DECEASED" etc
     if (is.character(sub_data[[status_col]]) || is.factor(sub_data[[status_col]])) {
         sub_data[[status_col]] <- ifelse(grepl("1", as.character(sub_data[[status_col]])), 1, 0)
     }
     sub_data[[status_col]] <- as.numeric(as.character(sub_data[[status_col]]))
-    print("Status conversion done")
 
-    if(nrow(sub_data) < 5) { return(NULL) }
-
-    # Set factor levels
+    # Set factor levels for reference group
     if ("' . $analysisType . '" == "mut") {
         sub_data$group <- factor(sub_data$group, levels = c("Non-mutated", "Mutated"))
     } else {
         sub_data$group <- factor(sub_data$group, levels = c("Low", "High"))
     }
-    print("Factor levels set")
 
     formula <- as.formula(paste("Surv(", time_col, ", ", status_col, ") ~ group"))
-    print(paste("Formula:", paste("Surv(", time_col, ", ", status_col, ") ~ group")))
     
-    #title <- paste("Survival Analysis (' . $geneName . ' - ", type, ")", sep="")
-    #title <- paste("Survival Analysis (' . $geneName . ')", sep="")
-    title <- ""
+    # --- Perform Analyses ---
+
+    # 1. Cox PH Model for both p-value and HR
+    cox_model <- coxph(formula, data = sub_data)
+    cox_summary <- summary(cox_model)
+    
+    # Extract p-value from the Wald test of the Cox model
+    pval <- cox_summary$coefficients[1, "Pr(>|z|)"]
+    pval_txt <- ifelse(pval < 0.001, "p < 0.001", paste("p =", round(pval, 3)))
+
+    # Extract HR and CI
+    hr <- round(cox_summary$conf.int[1, "exp(coef)"], 2)
+    hr_lower <- round(cox_summary$conf.int[1, "lower .95"], 2)
+    hr_upper <- round(cox_summary$conf.int[1, "upper .95"], 2)
+    hr_txt <- paste0("HR = ", hr, " (", hr_lower, "-", hr_upper, ")")
+
+    # Combine text for plot
+    plot_text <- paste(pval_txt, hr_txt, sep = "\\n")
+    
+    # --- Plotting ---
+    
+    title <- NULL
 
     fit <- survfit(formula, data = sub_data)
     # Workaround for ggsurvplot scoping issue
     fit$call$data <- quote(sub_data)
     fit$call$formula <- formula
     
-    print("Survfit done")
-    
-    # Calculate P-value
-    diff <- survdiff(formula, data = sub_data)
-    pval <- 1 - pchisq(diff$chisq, length(diff$n) - 1)
-    pval_txt <- ifelse(pval < 0.001, "p < 0.001", paste("p =", round(pval, 3)))
-    print("P-value calculated")
-
     # Plot
     png(output_file, width = 8, height = 6.5, units = "in", res = 300)
-    print("Starting ggsurvplot")
+    
     p <- ggsurvplot(
-    fit,
-    data = sub_data,
-    pval = TRUE,
-    conf.int = TRUE,
-    #risk.table = TRUE,
-    #risk.table.col = "strata",  # Color by strata
-    #risk.table.height = 0.05,   # Adjust height as needed
-    #risk.table.y.text = FALSE,  # Remove y-axis text for cleaner look
-    ggtheme = theme_bw(),
-    palette = c("#E7B800", "#2E9FDF"),
-    title = title,
-    legend.title = "' . $geneName . '",
-    legend.labs = levels(sub_data$group),
-    # Fix for the unknown labels warning:
-    risk.table.title = "Number at risk"
+        fit,
+        data = sub_data,
+        pval = plot_text, # Use the combined text for p-value and HR
+        pval.coord = c(max(sub_data[[time_col]], na.rm = TRUE) * 0.05, 0.15), # Adjust position
+        conf.int = TRUE,
+        ggtheme = theme_bw(),
+        palette = c("#E7B800", "#2E9FDF"),
+        title = title,
+        legend.title = "' . $geneName . '",
+        legend.labs = levels(sub_data$group)
+    )
+    
+    # Change x axis label
+    p$plot <- p$plot + xlab("Time (months)")
+
+    # Increase font size of everything
+    p$plot <- p$plot + theme(
+    axis.text = element_text(size = 14),     # Axis labels
+    axis.title = element_text(size = 16),    # Axis titles
+    plot.title = element_blank(),            # Remove the plot title
+    legend.title = element_text(size = 14),  # Legend title
+    legend.text = element_text(size = 12),   # Legend labels
+    strip.text = element_text(size = 14)     # Facet labels (if applicable)
     )
 
-    print("ggsurvplot object created")
     print(p)
-    print("Plot printed")
-    dev.off()
+    invisible(dev.off())
 }
 ';
 

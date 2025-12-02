@@ -26,16 +26,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
     // Redirect to prevent form re-submission on refresh
-    header("Location: admin_dashboard.php");
+    header("Location: admin_dashboard.php" . (isset($_GET['filter']) ? '?filter=' . $_GET['filter'] : ''));
     exit();
 }
 
-// Fetch contact form entries, ordered by unread first
-$sql = "SELECT id, Name, Email, Subject, Message, Time, is_read, is_replied, read_at, replied_at FROM contact_form ORDER BY is_read ASC, Time DESC";
+// Filter logic
+$filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
+$sql_where = '';
+switch ($filter) {
+    case 'unread':
+        $sql_where = 'WHERE is_read = 0';
+        break;
+    case 'read':
+        $sql_where = 'WHERE is_read = 1';
+        break;
+    case 'replied':
+        $sql_where = 'WHERE is_replied = 1';
+        break;
+    case 'all':
+    default:
+        $sql_where = '';
+        break;
+}
+
+
+// Fetch contact form entries, with new sorting
+$sql = "SELECT id, Name, Email, Subject, Message, Time, is_read, is_replied, read_at, replied_at FROM contact_form " . $sql_where . " ORDER BY is_read ASC, is_replied ASC, Time DESC";
 $result = $conn->query($sql);
 
 $messages = [];
-if ($result->num_rows > 0) {
+if ($result && $result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
         $messages[] = $row;
     }
@@ -55,7 +75,7 @@ $conn->close();
     <link rel="stylesheet" href="../css/styles.css">
     <style>
         .dashboard-container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 2rem auto;
             padding: 2rem;
             background-color: var(--card-bg);
@@ -68,12 +88,44 @@ $conn->close();
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
 
         .dashboard-header h1 {
             color: var(--primary-color);
             font-size: 2.2rem;
+            margin-right: 1rem;
         }
+        
+        .message-filters {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 10px rgba(67, 97, 238, 0.4);
+        }
+
 
         .logout-btn {
             background-color: #d9534f;
@@ -93,6 +145,7 @@ $conn->close();
 
         .message-list {
             display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
         }
 
@@ -103,6 +156,7 @@ $conn->close();
             box-shadow: var(--shadow);
             border-left: 5px solid var(--primary-color);
             position: relative;
+            min-width: 300px;
         }
 
         .message-card.read {
@@ -112,6 +166,10 @@ $conn->close();
         
         .message-card.unread {
             border-left: 5px solid #28a745; /* Green for unread messages */
+        }
+        
+        .message-card.replied {
+            border-left: 5px solid var(--secondary-color);
         }
 
 
@@ -224,6 +282,36 @@ $conn->close();
         .reply-form-container .send-email-btn:hover {
             background-color: var(--secondary-color);
         }
+
+        .nav-menu-admin {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu-admin {
+                display: none;
+                flex-direction: column;
+                gap: 1.5rem;
+                background-color: var(--nav-bg);
+                position: absolute;
+                top: 70px;
+                right: 1rem;
+                padding: 1.5rem;
+                border-radius: 0.5rem;
+                box-shadow: var(--shadow);
+                width: 200px;
+                align-items: stretch;
+            }
+            .nav-menu-admin.active {
+                display: flex;
+            }
+            .logout-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -237,9 +325,14 @@ $conn->close();
                 <button class="theme-toggle" id="themeToggle">
                     <i class="fas fa-moon"></i>
                 </button>
-                <form action="admin_logout.php" method="post">
-                    <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                </form>
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="nav-menu-admin" id="navMenu">
+                    <form action="admin_logout.php" method="post" style="margin: 0;">
+                        <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    </form>
+                </div>
             </div>
         </div>
     </header>
@@ -249,12 +342,19 @@ $conn->close();
             <h1>Welcome, <?php echo htmlspecialchars($_SESSION['admin_username']); ?>!</h1>
         </div>
 
+        <div class="message-filters">
+            <a href="?filter=all" class="filter-btn <?php if($filter == 'all') echo 'active'; ?>">All</a>
+            <a href="?filter=unread" class="filter-btn <?php if($filter == 'unread') echo 'active'; ?>">Unread</a>
+            <a href="?filter=read" class="filter-btn <?php if($filter == 'read') echo 'active'; ?>">Read</a>
+            <a href="?filter=replied" class="filter-btn <?php if($filter == 'replied') echo 'active'; ?>">Replied</a>
+        </div>
+
         <div class="message-list">
             <?php if (empty($messages)): ?>
-                <p style="text-align: center; color: var(--text-color);">No contact form entries found.</p>
+                <p style="text-align: center; color: var(--text-color);">No contact form entries found for the selected filter.</p>
             <?php else: ?>
                 <?php foreach ($messages as $message): ?>
-                    <div class="message-card <?php echo $message['is_read'] ? 'read' : 'unread'; ?>">
+                    <div class="message-card <?php echo $message['is_read'] ? 'read' : 'unread'; ?> <?php echo $message['is_replied'] ? 'replied' : ''; ?>">
                         <h3>Subject: <?php echo htmlspecialchars($message['Subject']); ?></h3>
                         <p><strong>Name:</strong> <?php echo htmlspecialchars($message['Name']); ?></p>
                         <p class="email"><strong>Email:</strong> <?php echo htmlspecialchars($message['Email']); ?></p>
@@ -280,8 +380,8 @@ $conn->close();
                                 <input type="hidden" name="action" value="delete">
                                 <button type="submit" class="delete-btn"><i class="fas fa-trash-alt"></i> Delete</button>
                             </form>
-                            <button type="button" class="reply-btn" data-email="<?php echo htmlspecialchars($message['Email']); ?>" data-subject="Re: <?php echo htmlspecialchars($message['Subject']); ?>">
-                                <i class="fas fa-reply"></i> Reply
+                            <button type="button" class="reply-btn" data-email="<?php echo htmlspecialchars($message['Email']); ?>" data-subject="Re: <?php echo htmlspecialchars($message['Subject']); ?>" data-message-id="<?php echo $message['id']; ?>">
+                                <i class="fas fa-reply"></i> <?php echo $message['is_replied'] ? 'Replied' : 'Reply'; ?>
                             </button>
                         </div>
 
@@ -355,59 +455,5 @@ $conn->close();
 
     <script src="../js/jquery-3.6.0.min.js"></script>
     <script src="../js/main.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Toggle reply form visibility
-            $('.reply-btn').on('click', function() {
-                $(this).closest('.message-card').find('.reply-form-container').slideToggle();
-            });
-
-            // Handle email sending (frontend part)
-            $('.reply-email-form').on('submit', function(event) {
-                event.preventDefault();
-                var messageId = $(this).data('message-id');
-                var toEmail = $(this).find('.reply-to').val();
-                var fromEmail = $(this).find('.reply-from').val();
-                var ccEmail = $(this).find('.reply-cc').val();
-                var subject = $(this).find('.reply-subject').val();
-                var messageBody = $(this).find('.reply-message').val();
-
-                // For now, just log the email details and update UI
-                console.log('--- Sending Email ---');
-                console.log('To:', toEmail);
-                console.log('From:', fromEmail);
-                console.log('CC:', ccEmail);
-                console.log('Subject:', subject);
-                console.log('Message:', messageBody);
-                console.log('---------------------');
-
-                // In a real application, you would send this data to a backend PHP script
-                // that uses a mail library (like PHPMailer) to send the email.
-                // For demonstration, we'll just show an alert and mark as replied.
-
-                alert('Email simulated to be sent! (Check console for details)');
-
-                // Mark as replied in the database
-                $.ajax({
-                    url: 'admin_update_reply_status.php', // A new PHP file to handle this
-                    type: 'POST',
-                    data: {
-                        id: messageId,
-                        action: 'mark_replied'
-                    },
-                    success: function(response) {
-                        if (response === 'Success') {
-                            location.reload(); // Reload to reflect changes
-                        } else {
-                            alert('Error updating reply status: ' + response);
-                        }
-                    },
-                    error: function() {
-                        alert('Error communicating with server to update reply status.');
-                    }
-                });
-            });
-        });
-    </script>
 </body>
 </html>
