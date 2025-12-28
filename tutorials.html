@@ -7,6 +7,97 @@
     <link rel="icon" href="favicon_io/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .tutorials-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .accordion {
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            padding: 1.5rem;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 1.3rem;
+            transition: 0.4s;
+            border-radius: 0.5rem;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+        }
+        .accordion.active, .accordion:hover {
+            opacity: 0.9;
+        }
+        .accordion i {
+            margin-right: 1rem;
+        }
+        .accordion:after {
+            content: '\f078'; /* Font Awesome chevron-down */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: white;
+            transition: transform 0.3s ease;
+            margin-left: auto;
+        }
+        .accordion.active {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        .accordion.active:after {
+            transform: rotate(180deg);
+        }
+        .panel {
+            padding: 0;
+            background-color: var(--card-bg);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            border-radius: 0 0 0.8rem 0.8rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1rem;
+        }
+        .tutorial-body {
+            padding: 2rem;
+        }
+        .tutorial-body h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        .tutorial-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .step-number {
+            flex-shrink: 0;
+            background-color: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .step-details p {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        .step-details .icon-note {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+        .icon-note i {
+            margin-right: 0.5rem;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -32,7 +123,6 @@
                     <li><a href="scrna.html" class="nav-link">scRNA-seq</a></li>
                     <li><a href="expr.html" class="nav-link">Expression</a></li>
                     <li><a href="survR.html" class="nav-link">Survival</a></li>
-                    <li><a href="download.html" class="nav-link">Download</a></li>
                     <li><a href="contact.html" class="nav-link">Contact</a></li>
                 </ul>
             </div>
@@ -40,49 +130,158 @@
     </header>
 
     <main>
-        <section class="tutorials-content">
-            <h1 class="section-title">Tutorials</h1>
-            
-            <div class="tutorial-section">
-                <h2>Getting Started</h2>
-                <p>Welcome to the Lung TFDB! This tutorial will guide you through the basic features of our database.</p>
-                <ol>
-                    <li>Navigate through the different sections using the navigation bar at the top of the page.</li>
-                    <li>Each section provides a unique set of tools and data for analyzing transcription factors in lung cancer.</li>
-                    <li>Use the search and filter options to find the specific information you are looking for.</li>
-                </ol>
+        <h1 class="section-title">Tutorials</h1>
+        <div class="tutorials-container">
+
+            <button class="accordion"><i class="fas fa-heartbeat"></i>How to Analyze Prognostic Value</button>
+            <div class="panel">
+                <div class="tutorial-body">
+                    <h3>This tutorial shows how to generate a Kaplan-Meier survival plot for a transcription factor.</h3>
+                    
+                    <div class="tutorial-step">
+                        <div class="step-number">1</div>
+                        <div class="step-details">
+                            <p>Navigate to the <strong><a href="survR.html" class="nav-link">Survival</a></strong> page from the header menu.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-number">2</div>
+                        <div class="step-details">
+                            <p>Enter the official gene symbol for your transcription factor of interest (e.g., "SOX2") into the "Enter Gene" input box.</p>
+                            <p class="icon-note"><i class="fas fa-keyboard"></i> A list of available genes will appear as you type.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-number">3</div>
+                        <div class="step-details">
+                            <p>Select the desired lung cancer dataset (e.g., TCGA-LUAD) from the dropdown menu.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-number">4</div>
+                        <div class="step-details">
+                            <p>Click the "Analyze" button to generate the plot.</p>
+                            <p class="icon-note"><i class="fas fa-image"></i> The Kaplan-Meier plot will be displayed, showing survival probability for patients with high and low expression of the gene. A p-value is provided to indicate statistical significance.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="tutorial-section">
-                <h2>How to Search</h2>
-                <p>Our search functionality is designed to be intuitive and powerful.</p>
-                <ul>
-                    <li><strong>Gene Search:</strong> In sections like "Mutations" and "Expression," you can search for a specific gene by entering its name in the search box.</li>
-                    <li><strong>Filter by Dataset:</strong> You can filter the data by selecting a specific dataset from the dropdown menu.</li>
-                    <li><strong>Advanced Filters:</strong> Some sections may offer advanced filtering options to further refine your search results.</li>
-                </ul>
+            <button class="accordion"><i class="fas fa-chart-bar"></i>How to Compare Gene Expression</button>
+            <div class="panel">
+                <div class="tutorial-body">
+                    <h3>This tutorial explains how to compare a TF's expression between tumor and normal tissues.</h3>
+
+                    <div class="tutorial-step">
+                        <div class="step-number">1</div>
+                        <div class="step-details">
+                            <p>Navigate to the <strong><a href="expr.html" class="nav-link">Expression</a></strong> page.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-number">2</div>
+                        <div class="step-details">
+                            <p>Enter the gene symbol (e.g., "NKX2-1") in the search box.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-number">3</div>
+                        <div class="step-details">
+                            <p>Select a dataset to compare expression levels within.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-number">4</div>
+                        <div class="step-details">
+                            <p>Click the "Submit" button.</p>
+                            <p class="icon-note"><i class="fas fa-image"></i> Box plots or violin plots will be shown, illustrating the expression distribution in tumor versus normal samples.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="tutorial-section">
-                <h2>Analyzing Data</h2>
-                <p>Lung TFDB provides several tools for data analysis.</p>
-                <ul>
-                    <li><strong>Survival Analysis:</strong> In the "Survival" section, you can generate Kaplan-Meier plots to visualize the impact of TF expression on patient survival.</li>
-                    <li><strong>Expression Analysis:</strong> In the "Expression" section, you can compare TF expression levels between tumor and normal tissues using violin and box plots.</li>
-                    <li><strong>scRNA-seq Analysis:</strong> In the "scRNA-seq" section, you can explore TF expression at the single-cell level using UMAPs, feature plots, and violin plots.</li>
-                </ul>
+            <button class="accordion"><i class="fas fa-pills"></i>How to Explore Gene Mutations</button>
+            <div class="panel">
+                <div class="tutorial-body">
+                    <h3>This tutorial covers how to visualize mutation data for one or more TFs.</h3>
+
+                     <div class="tutorial-step">
+                        <div class="step-number">1</div>
+                        <div class="step-details">
+                            <p>Navigate to the <strong><a href="mutations.html" class="nav-link">Mutations</a></strong> page.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-number">2</div>
+                        <div class="step-details">
+                            <p>Enter one or more gene symbols separated by commas (e.g., "TP53,KEAP1,NFE2L2") into the text area.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-number">3</div>
+                        <div class="step-details">
+                             <p>Select the cancer type (e.g., LUAD) from the dropdown.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-number">4</div>
+                        <div class="step-details">
+                            <p>Click "Generate OncoPlot".</p>
+                            <p class="icon-note"><i class="fas fa-image"></i> An OncoPlot will be generated, displaying the mutation landscape of the selected genes across the patient cohort. Different colors represent different mutation types (e.g., missense, nonsense, frameshift).</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="tutorial-section">
-                <h2>Downloading Data</h2>
-                <p>You can download data for offline analysis.</p>
-                <ol>
-                    <li>Go to the "Download" section.</li>
-                    <li>Select the dataset you want to download.</li>
-                    <li>Click the "Download" button to save the data to your computer.</li>
-                </ol>
+            <button class="accordion"><i class="fas fa-braille"></i>How to Perform Single-Cell (scRNA) Analysis</button>
+            <div class="panel">
+                <div class="tutorial-body">
+                    <h3>This tutorial demonstrates how to explore TF expression at single-cell resolution.</h3>
+                    
+                    <div class="tutorial-step">
+                        <div class="step-number">1</div>
+                        <div class="step-details">
+                            <p>Navigate to the <strong><a href="scrna.html" class="nav-link">scRNA-seq</a></strong> page.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-number">2</div>
+                        <div class="step-details">
+                            <p>Select a dataset from the "Choose Dataset" dropdown menu (e.g., "Maynard2020_Lung").</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-number">3</div>
+                        <div class="step-details">
+                            <p>In the "Choose one or more gene symbols" input, type a gene name (e.g., "A2M") and click on it from the dropdown to add it. You can add multiple genes.</p>
+                            <p class="icon-note"><i class="fas fa-tags"></i> Selected genes will appear as tags below the input box.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-number">4</div>
+                        <div class="step-details">
+                            <p>Choose an "Annotation Type" to label the cell clusters in the UMAP plot (e.g., "Default annotation").</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="step-number">5</div>
+                        <div class="step-details">
+                            <p>Click the "Search" button to generate the plots.</p>
+                            <p class="icon-note"><i class="fas fa-spinner fa-spin"></i> Please be patient, as scRNA analysis can take some time.</p>
+                            <p class="icon-note" style="margin-top: 1rem;"><i class="fas fa-image"></i> Various plots will be displayed:
+                                <ul style="margin-top: 0.5rem; padding-left: 1.5rem; list-style-type: disc;">
+                                    <li><strong>UMAP Dim Plot:</strong> Shows cell clusters based on the chosen annotation.</li>
+                                    <li><strong>Feature Plot:</strong> Overlays the expression of your selected gene(s) onto the UMAP plot.</li>
+                                    <li><strong>Violin Plot:</strong> Compares the expression of your gene(s) across different cell clusters.</li>
+                                    <li><strong>Dot Plot:</strong> Shows the percentage of cells expressing the gene(s) and the average expression level in each cluster.</li>
+                                </ul>
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </section>
+
+        </div>
     </main>
 
     <footer>
@@ -101,7 +300,6 @@
                 <h3>Quick Links</h3>
                 <ul class="footer-links">
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="download.html">Download</a></li>
                     <li><a href="contact.html">Contact Us</a></li>
                     <li><a href="documentation.html">Documentation</a></li>
                 </ul>
@@ -122,5 +320,19 @@
     </footer>
 
     <script src="js/main.js"></script>
+    <script>
+        const acc = document.getElementsByClassName("accordion");
+        for (let i = 0; i < acc.length; i++) {
+            acc[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                const panel = this.nextElementSibling;
+                if (panel.style.maxHeight) {
+                    panel.style.maxHeight = null;
+                } else {
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                }
+            });
+        }
+    </script>
 </body>
 </html>

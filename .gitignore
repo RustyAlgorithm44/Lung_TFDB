@@ -3,3 +3,4 @@ files/
 admin/db_connect_admin.php
 php/db_connect.php
 php/python_output.log
+Guide.md

@@ -7,6 +7,85 @@
     <link rel="icon" href="favicon_io/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .documentation-container {
+            display: flex;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .doc-sidebar {
+            flex: 0 0 250px;
+            position: sticky;
+            top: 120px;
+            align-self: flex-start;
+        }
+        .doc-sidebar-nav {
+            list-style: none;
+            padding: 0;
+        }
+        .doc-sidebar-nav li a {
+            display: block;
+            padding: 0.8rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+        }
+        .doc-sidebar-nav li a:hover, .doc-sidebar-nav li a.active {
+            background-color: var(--card-bg);
+            color: var(--primary-color);
+            border-left: 3px solid var(--primary-color);
+        }
+        .doc-content {
+            flex: 1;
+            max-width: calc(100% - 270px);
+        }
+        .doc-section {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 0.8rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            scroll-margin-top: 100px;
+        }
+        .doc-section h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        .doc-section h3 {
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .doc-section p, .doc-section li {
+            color: var(--text-color);
+            opacity: 0.9;
+        }
+        .doc-section ul {
+            padding-left: 1.5rem;
+            margin-top: 1rem;
+        }
+        .doc-section li {
+            margin-bottom: 0.5rem;
+        }
+        @media (max-width: 992px) {
+            .documentation-container {
+                flex-direction: column;
+            }
+            .doc-sidebar {
+                position: static;
+                flex: 1;
+                width: 100%;
+                margin-bottom: 2rem;
+            }
+            .doc-content {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -32,7 +111,6 @@
                     <li><a href="scrna.html" class="nav-link">scRNA-seq</a></li>
                     <li><a href="expr.html" class="nav-link">Expression</a></li>
                     <li><a href="survR.html" class="nav-link">Survival</a></li>
-                    <li><a href="download.html" class="nav-link">Download</a></li>
                     <li><a href="contact.html" class="nav-link">Contact</a></li>
                 </ul>
             </div>
@@ -40,40 +118,69 @@
     </header>
 
     <main>
-        <section class="documentation-content">
-            <h1 class="section-title">Documentation</h1>
-            
-            <div class="doc-section">
-                <h2>Introduction</h2>
-                <p>The Lung Cancer Transcription Factor Database (Lung TFDB) is a comprehensive resource for researchers studying the role of transcription factors (TFs) in lung cancer. It provides a centralized platform for accessing and analyzing a wide range of data related to TFs, including their protein sequences, mutations, binding sites, expression levels, and impact on patient survival.</p>
-            </div>
-
-            <div class="doc-section">
-                <h2>Features</h2>
-                <ul>
-                    <li><strong>Protein Sequence:</strong> View and download the protein sequences of TFs.</li>
-                    <li><strong>Mutations:</strong> Explore somatic mutations in TFs across different lung cancer subtypes.</li>
-                    <li><strong>Binding Sites:</strong> Identify and visualize the genomic binding sites of TFs.</li>
-                    <li><strong>scRNA-seq:</strong> Analyze single-cell RNA sequencing data to understand TF expression at the cellular level.</li>
-                    <li><strong>Expression:</strong> Compare TF expression levels between tumor and normal tissues.</li>
-                    <li><strong>Survival:</strong> Perform survival analysis to assess the prognostic significance of TFs.</li>
-                    <li><strong>Download:</strong> Download various datasets for offline analysis.</li>
-                    <li><strong>Contact:</strong> Get in touch with the database administrators for support or inquiries.</li>
+        <h1 class="section-title">Documentation</h1>
+        <div class="documentation-container">
+            <aside class="doc-sidebar">
+                <ul class="doc-sidebar-nav">
+                    <li><a href="#introduction"><i class="fas fa-book-open fa-fw"></i> Introduction</a></li>
+                    <li><a href="#features"><i class="fas fa-cogs fa-fw"></i> Features</a></li>
+                    <li><a href="#data-sources"><i class="fas fa-database fa-fw"></i> Data Sources</a></li>
+                    <li><a href="#citing"><i class="fas fa-quote-right fa-fw"></i> How to Cite</a></li>
+                    <li><a href="#tech-details"><i class="fas fa-code fa-fw"></i> Technical Details</a></li>
                 </ul>
-            </div>
+            </aside>
+            <div class="doc-content">
+                <section id="introduction" class="doc-section">
+                    <h2><i class="fas fa-book-open"></i> Introduction</h2>
+                    <p>The Lung Cancer Transcription Factor Database (Lung TFDB) is a specialized, comprehensive resource designed for researchers studying the role of transcription factors (TFs) in the pathology of lung cancer. It provides a centralized, user-friendly platform for accessing and analyzing a wide array of multi-omics data related to TFs. This includes their protein sequences, somatic mutations, genomic binding sites, gene expression levels, and their impact on patient survival outcomes. Our goal is to accelerate research by providing pre-compiled and easy-to-explore datasets.</p>
+                </section>
 
-            <div class="doc-section">
-                <h2>Data Sources</h2>
-                <p>The data in Lung TFDB is compiled from various public sources, including but not limited to:</p>
-                <ul>
-                    <li>The Cancer Genome Atlas (TCGA)</li>
-                    <li>Gene Expression Omnibus (GEO)</li>
-                    <li>cBioPortal for Cancer Genomics</li>
-                    <li>And other relevant scientific publications.</li>
-                </ul>
-                <p>Each dataset is carefully curated and processed to ensure data quality and consistency.</p>
+                <section id="features" class="doc-section">
+                    <h2><i class="fas fa-cogs"></i> Features</h2>
+                    
+                    <h3><i class="fas fa-dna"></i> Protein Sequence</h3>
+                    <p>View, search, and download the full-length protein sequences of specified transcription factors. This feature is useful for local sequence analysis, such as domain prediction or alignment.</p>
+                    
+                    <h3><i class="fas fa-pills"></i> Mutations</h3>
+                    <p>Explore somatic mutations in TFs across different lung cancer subtypes (LUAD, LUSC). The data is visualized using an interactive OncoPlot, which displays the type and frequency of mutations for multiple genes across a patient cohort. This helps in identifying frequently mutated TFs that may be key drivers in lung tumorigenesis.</p>
+                    
+                    <h3><i class="fas fa-magnet"></i> Binding Sites</h3>
+                    <p>Identify and visualize the genomic binding sites of TFs. This data is critical for understanding the regulatory networks controlled by these factors and how they influence gene expression.</p>
+                    
+                    <h3><i class="fas fa-braille"></i> scRNA-seq Analysis</h3>
+                    <p>Analyze single-cell RNA sequencing data to understand TF expression at the cellular level. This section provides UMAP plots for visualizing cell clusters, feature plots to see the expression of a gene within those clusters, and violin plots to compare expression across different cell types.</p>
+                    
+                    <h3><i class="fas fa-chart-bar"></i> Expression Analysis</h3>
+                    <p>Compare TF expression levels between lung tumor tissues and adjacent normal tissues. This differential expression analysis is visualized using box plots and violin plots, providing a clear view of TFs that are up-regulated or down-regulated in cancer.</p>
+                    
+                    <h3><i class="fas fa-heartbeat"></i> Survival Analysis</h3>
+                    <p>Perform Kaplan-Meier survival analysis to assess the prognostic significance of a TF's expression. This tool allows researchers to determine if high or low expression of a TF is correlated with patient survival outcomes, helping to identify potential prognostic biomarkers.</p>
+                </section>
+
+                <section id="data-sources" class="doc-section">
+                    <h2><i class="fas fa-database"></i> Data Sources</h2>
+                    <p>The data within Lung TFDB is meticulously compiled and curated from several publicly available, high-quality repositories. We ensure data consistency and quality through a standardized processing pipeline. Key sources include:</p>
+                    <ul>
+                        <li><b>The Cancer Genome Atlas (TCGA):</b> Specifically, the TCGA-LUAD (Lung Adenocarcinoma) and TCGA-LUSC (Lung Squamous Cell Carcinoma) cohorts for mutation, expression, and clinical data.</li>
+                        <li><b>Gene Expression Omnibus (GEO):</b> For independent gene expression datasets and single-cell RNA-seq experiments.</li>
+                        <li><b>cBioPortal for Cancer Genomics:</b> As an additional source for cross-validation of mutation and expression data.</li>
+                        <li>Other peer-reviewed scientific publications containing relevant lung cancer datasets.</li>
+                    </ul>
+                    <p>Each dataset is harmonized to ensure gene identifiers and sample annotations are consistent across the database.</p>
+                </section>
+
+                <section id="citing" class="doc-section">
+                    <h2><i class="fas fa-quote-right"></i> How to Cite</h2>
+                    <p>If you use Lung TFDB in your research, please cite our publication (details to be added upon publication). For now, please cite this resource as:</p>
+                    <p><em>Guruguhan, S. (2025). Lung TFDB: The Lung Cancer Transcription Factor Database. Available at: [Your GitHub Pages URL].</em></p>
+                </section>
+
+                <section id="tech-details" class="doc-section">
+                    <h2><i class="fas fa-code"></i> Technical Details</h2>
+                    <p>Lung TFDB is built with a standard web stack. The frontend is created with HTML, CSS, and JavaScript. The backend data processing and analysis tasks are handled by PHP scripts that execute R code for statistical computations and plot generation. The interactive visualizations are powered by various JavaScript libraries.</p>
+                </section>
             </div>
-        </section>
+        </div>
     </main>
 
     <footer>
@@ -92,7 +199,6 @@
                 <h3>Quick Links</h3>
                 <ul class="footer-links">
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="download.html">Download</a></li>
                     <li><a href="contact.html">Contact Us</a></li>
                     <li><a href="documentation.html">Documentation</a></li>
                 </ul>
@@ -113,5 +219,27 @@
     </footer>
 
     <script src="js/main.js"></script>
+    <script>
+        // Active state for sidebar navigation
+        const sections = document.querySelectorAll('.doc-section');
+        const navLinks = document.querySelectorAll('.doc-sidebar-nav a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 120) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(a => {
+                a.classList.remove('active');
+                if (a.getAttribute('href').includes(current)) {
+                    a.classList.add('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

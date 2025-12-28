@@ -7,6 +7,64 @@
     <link rel="icon" href="favicon_io/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .faq-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .accordion {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 1.2rem 1.5rem;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 1.1rem;
+            transition: 0.4s;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        .accordion.active, .accordion:hover {
+             background-color: #e7e7e7;
+        }
+        .dark-mode .accordion.active, .dark-mode .accordion:hover {
+            background-color: #333;
+        }
+        .accordion:after {
+            content: '\f078'; /* Font Awesome chevron-down */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+        .accordion.active:after {
+            transform: rotate(180deg);
+        }
+        .panel {
+            padding: 0;
+            background-color: var(--card-bg);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            border-radius: 0 0 0.5rem 0.5rem;
+            margin-bottom: 1rem;
+            margin-top: -1rem;
+        }
+        .panel-content {
+            padding: 1rem 1.5rem;
+        }
+        .panel-content p {
+            opacity: 0.9;
+            line-height: 1.7;
+            margin: 0;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -32,7 +90,6 @@
                     <li><a href="scrna.html" class="nav-link">scRNA-seq</a></li>
                     <li><a href="expr.html" class="nav-link">Expression</a></li>
                     <li><a href="survR.html" class="nav-link">Survival</a></li>
-                    <li><a href="download.html" class="nav-link">Download</a></li>
                     <li><a href="contact.html" class="nav-link">Contact</a></li>
                 </ul>
             </div>
@@ -43,29 +100,55 @@
         <section class="faq-content">
             <h1 class="section-title">Frequently Asked Questions</h1>
             
-            <div class="faq-item">
-                <h3>What is the Lung TFDB?</h3>
-                <p>The Lung Cancer Transcription Factor Database (Lung TFDB) is a comprehensive resource for researchers studying the role of transcription factors (TFs) in lung cancer. It provides a centralized platform for accessing and analyzing a wide range of data related to TFs.</p>
-            </div>
+            <div class="faq-container">
+                <button class="accordion">What are Transcription Factors (TFs)?</button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <p>Transcription Factors (TFs) are proteins that control the rate of transcription of genetic information from DNA to messenger RNA, by binding to specific DNA sequences. They are essential for regulating gene expression and are often implicated in diseases like cancer.</p>
+                    </div>
+                </div>
 
-            <div class="faq-item">
-                <h3>How do I search for a specific gene?</h3>
-                <p>You can search for a specific gene by entering its name in the search box available in sections like "Mutations" and "Expression."</p>
-            </div>
+                <button class="accordion">What is the Lung TFDB?</button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <p>The Lung Cancer Transcription Factor Database (Lung TFDB) is a comprehensive, free-to-use resource for researchers. It provides a centralized platform for accessing and analyzing a wide range of data related to TFs in lung cancer, including their mutations, expression, and impact on patient survival.</p>
+                    </div>
+                </div>
 
-            <div class="faq-item">
-                <h3>Can I download the data?</h3>
-                <p>Yes, you can download various datasets for offline analysis from the "Download" section.</p>
-            </div>
+                <button class="accordion">What types of lung cancer are included?</button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <p>Currently, our database primarily focuses on the two most common types of Non-Small Cell Lung Cancer (NSCLC): Lung Adenocarcinoma (LUAD) and Lung Squamous Cell Carcinoma (LUSC), using data from large-scale projects like The Cancer Genome Atlas (TCGA).</p>
+                    </div>
+                </div>
 
-            <div class="faq-item">
-                <h3>How is the data curated?</h3>
-                <p>The data in Lung TFDB is compiled from various public sources and is carefully curated and processed to ensure data quality and consistency.</p>
-            </div>
+                <button class="accordion">How do I search for a specific gene?</button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <p>You can search for a specific gene by entering its official HUGO gene symbol in the search box available in sections like "Protein Sequence", "Mutations," "Expression," and "Survival." Our system supports autocomplete to help you find the gene you are looking for.</p>
+                    </div>
+                </div>
 
-            <div class="faq-item">
-                <h3>Who can I contact for help?</h3>
-                <p>If you need help or have any questions, please use the contact form in the "Contact" section to get in touch with the database administrators.</p>
+                <button class="accordion">Can I download the data or plots?</button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <p>Yes. Wherever possible, a "Download" button to export the data as a CSV file. For all plots and images (like Kaplan-Meier plots, OncoPrints, or violin plots), you can click the image to download it to your computer in high resolution and 300dpi.</p>
+                    </div>
+                </div>
+
+                <button class="accordion">How often is the data updated?</button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <p>The database is updated periodically as new datasets become available and as we incorporate new features. We aim to keep the data as current as possible.</p>
+                    </div>
+                </div>
+
+                <button class="accordion">Who can I contact for help or to report an issue?</button>
+                <div class="panel">
+                    <div class="panel-content">
+                        <p>If you need help, have any questions, or would like to report an issue, please use the form in the <strong><a href="contact.html" class="nav-link">Contact</a></strong> section to get in touch with the database administrators. We appreciate your feedback!</p>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -86,7 +169,6 @@
                 <h3>Quick Links</h3>
                 <ul class="footer-links">
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="download.html">Download</a></li>
                     <li><a href="contact.html">Contact Us</a></li>
                     <li><a href="documentation.html">Documentation</a></li>
                 </ul>
@@ -107,5 +189,19 @@
     </footer>
 
     <script src="js/main.js"></script>
+    <script>
+        const acc = document.getElementsByClassName("accordion");
+        for (let i = 0; i < acc.length; i++) {
+            acc[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                const panel = this.nextElementSibling;
+                if (panel.style.maxHeight) {
+                    panel.style.maxHeight = null;
+                } else {
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                }
+            });
+        }
+    </script>
 </body>
 </html>
