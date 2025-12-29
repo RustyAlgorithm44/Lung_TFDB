@@ -343,6 +343,13 @@ run_analysis <- function(time_col, status_col, type, output_file) {
     
     if(nrow(sub_data) < 5) { return(NULL) }
 
+    # Check if each group has a minimum number of subjects
+    group_counts <- table(sub_data$group)
+    if (length(group_counts) < 2 || any(group_counts < 2)) {
+        print(paste("Skipping", type, "analysis: at least one group has fewer than 2 subjects."))
+        return(NULL)
+    }
+
     # Ensure status is numeric (0/1)
     if (is.character(sub_data[[status_col]]) || is.factor(sub_data[[status_col]])) {
         sub_data[[status_col]] <- ifelse(grepl("1", as.character(sub_data[[status_col]])), 1, 0)

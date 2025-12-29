@@ -120,7 +120,7 @@ tumor_label <- paste('Tumor (n=', tumor_count, ')', sep = '')
 normal_label <- paste('Normal (n=', normal_count, ')', sep = '')
 legend_labels <- c('Tumor' = tumor_label, 'Normal' = normal_label)
 
-stat_method <- ifelse(stat_test == 'kruskal.test', 'kruskal.test', 't.test')
+stat_method <- ifelse(stat_test == 'wilcox.test', 'wilcox.test', 't.test')
 
 # Violin plot
 violin_plot <- ggplot(data, aes(x = type, y = expression, fill = type)) + 
