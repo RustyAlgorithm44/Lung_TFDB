@@ -302,9 +302,9 @@ if (empty($final_data)) {
 
 // Write to CSV
 $fp = fopen($data_for_r_path, 'w');
-fputcsv($fp, array_keys($final_data[0]));
+fputcsv($fp, array_keys($final_data[0]), ",", "\"", "\\");
 foreach ($final_data as $fields) {
-    fputcsv($fp, $fields);
+    fputcsv($fp, $fields, ",", "\"", "\\");
 }
 fclose($fp);
 log_message("Data written to $data_for_r_path");
@@ -328,7 +328,7 @@ if ($dataset === 'gse30219_adeno' || $dataset === 'gse30219_squam') {
 }
 
 $r_code = '
-.libPaths(c("C:/Users/Lung-TFDB/AppData/Local/R/win-library/4.5", "C:/Users/Guruguhan/AppData/Local/R/win-library/4.5"))
+.libPaths("/home/guruguhan/R/x86_64-pc-linux-gnu-library/4.5")
 library(survival)
 library(survminer)
 library(ggplot2)

@@ -69,12 +69,12 @@ mkdir($tempDir, 0777, true);
 // Prepare data for R script
 $dataFile = $tempDir . '/data.csv';
 $file = fopen($dataFile, 'w');
-fputcsv($file, array('type', 'sample', 'expression'));
+fputcsv($file, array('type', 'sample', 'expression'), ",", "\"", "\\");
 foreach ($tumorData as $sample => $expression) {
-    fputcsv($file, array('Tumor', $sample, $expression));
+    fputcsv($file, array('Tumor', $sample, $expression), ",", "\"", "\\");
 }
 foreach ($normalData as $sample => $expression) {
-    fputcsv($file, array('Normal', $sample, $expression));
+    fputcsv($file, array('Normal', $sample, $expression), ",", "\"", "\\");
 }
 fclose($file);
 
@@ -88,10 +88,7 @@ $violinImage = $tempDir . '/violin.png';
 $boxImage = $tempDir . '/box.png';
 
 $rCode = "
-.libPaths(c(
-  'C:/Users/Lung-TFDB/AppData/Local/R/win-library/4.5',
-  'C:/Users/Guruguhan/AppData/Local/R/win-library/4.5'
-))
+.libPaths('/home/guruguhan/R/x86_64-pc-linux-gnu-library/4.5')
 args <- commandArgs(trailingOnly = TRUE)
 data_file <- args[1]
 violin_image <- args[2]
@@ -171,7 +168,7 @@ $command = "Rscript \"$rScript\" \"$dataFile\" \"$violinImage\" \"$boxImage\" $t
 //$command = "Rscript \" $rScript $dataFile $violinImage $boxImage $tumorCount $normalCount $jitterEnabled $jitterColor $statTest";
 //$rCommand = "Rscript \"$rScriptFile\" 2>&1";
 exec($command, $output, $return_var);
-//file_put_contents("../plots/expr_log.txt", implode("\n", $output)); // Log R output for debugging
+file_put_contents("../plots/expr_log.txt", implode("\n", $output)); // Log R output for debugging
 
 if ($return_var != 0) {
     // Clean up temp files before dying

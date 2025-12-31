@@ -14,7 +14,7 @@ if ($conn->connect_error) {
 }
 
 // Get the table name and other parameters
-$table = isset($_POST['geneName']) ? strtoupper(trim($_POST['geneName'])) : '';
+$table = isset($_POST['geneName']) ? strtolower(trim($_POST['geneName'])) : '';
 $filterGene = isset($_POST['filterGene']) ? strtoupper(trim($_POST['filterGene'])) : '';
 $page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
 $limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 100;

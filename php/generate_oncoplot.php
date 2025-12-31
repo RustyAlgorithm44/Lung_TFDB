@@ -47,17 +47,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $tsvFile = $plotsDir . 'mutation_data_' . uniqid() . '.tsv';
     $file = fopen($tsvFile, 'w');
     $header = array_keys(mysqli_fetch_assoc($result));
-    fputcsv($file, $header, "\t");
+    fputcsv($file, $header, "\t", "\"", "\\");
     mysqli_data_seek($result, 0);
     while ($row = mysqli_fetch_assoc($result)) {
-        fputcsv($file, $row, "\t");
+        fputcsv($file, $row, "\t", "\"", "\\");
     }
     fclose($file);
     mysqli_free_result($result);
     mysqli_close($conn);
 
     // Write R script file to generate PDF
-    $rCode = ".libPaths(c('C:/Users/Lung-TFDB/AppData/Local/R/win-library/4.5', 'C:/Users/Guruguhan/AppData/Local/R/win-library/4.5'))\n" .
+    $rCode = ".libPaths('/home/guruguhan/R/x86_64-pc-linux-gnu-library/4.5')\n" .
         "library(maftools)\n" .
         "maf <- read.maf(maf='$tsvFile')\n" .
         "pdf('$pdfFile', width=9, height=6)\n" .
@@ -84,7 +84,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     file_put_contents($rScriptFile, $rCode);
 
     // Construct and execute R command
-    //$rCommand = "\"C:\\Program Files\\R\\R-4.5.0\\bin\\Rscript.exe\" \"$rScriptFile\" 2>&1";
     $rCommand = "Rscript \"$rScriptFile\" 2>&1";
     exec($rCommand, $output, $return_var);
     //file_put_contents("../plots/maftools_log.txt", implode("\n", $output)); // Log R output for debugging
