@@ -7,7 +7,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit();
 }
 
-require 'db_connect_admin.php';
+require '../php/db_connect.php';
 
 // Handle actions (mark as read, delete)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -318,7 +318,7 @@ $conn->close();
     <header>
         <div class="header-container">
             <a href="../index.html" class="logo">
-                <i class="fas fa-dna"></i>
+                <i class="fa-solid fa-lungs"></i>
                 <span>Lung TFDB</span>
             </a>
             <div class="nav-container">
@@ -329,6 +329,13 @@ $conn->close();
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="nav-menu-admin" id="navMenu">
+                    <a href="../protein_seq.html" class="nav-link">Protein Sequence</a>
+                    <a href="../mutations.html" class="nav-link">Mutations</a>
+                    <a href="../binding.html" class="nav-link">Binding Sites</a>
+                    <a href="../scrna.html" class="nav-link">scRNA-seq</a>
+                    <a href="../expr.html" class="nav-link">Expression</a>
+                    <a href="../survR.html" class="nav-link">Survival</a>
+                    <a href="../contact.html" class="nav-link">Contact</a>
                     <form action="admin_logout.php" method="post" style="margin: 0;">
                         <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
                     </form>
@@ -421,35 +428,34 @@ $conn->close();
                 <h3>Lung TFDB</h3>
                 <p>A comprehensive database for lung cancer transcription factors with integrated multi-omics data and analysis tools.</p>
                 <div class="social-links">
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="https://akkis-lab.github.io/ott-lab/index.html"><i class="fa-solid fa-globe"></i></a>
+                    <a href="https://www.linkedin.com/in/guruguhan-s/"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/RustyAlgorithm44/Lung_TFDB"><i class="fab fa-github"></i></a>
                 </div>
             </div>
             
             <div class="footer-column">
                 <h3>Quick Links</h3>
                 <ul class="footer-links">
-                    <li><a href="../index.html">Home</a></li>
-                    <li><a href="../download.html">Download</a></li>
-                    <li><a href="../contact.html">Contact Us</a></li>
-                    <li><a href="#">Documentation</a></li>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="documentation.html">Documentation</a></li>
+                    <li><a href="admin/admin_login.php">Admin</a></li>
                 </ul>
             </div>
             
             <div class="footer-column">
                 <h3>Resources</h3>
                 <ul class="footer-links">
-                    <li><a href="#">API Access</a></li>
-                    <li><a href="#">Tutorials</a></li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Publications</a></li>
+                    <li><a href="tutorials.html">Tutorials</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="sitemap.html">Sitemap</a></li>
                 </ul>
             </div>
         </div>
         
         <div class="copyright">
-            <p>&copy; 2024 SSNCCPR. All rights reserved.</p>
+            <p>&copy; 2025 SSNCCPR. All rights reserved.</p>
         </div>
     </footer>
 

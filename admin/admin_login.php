@@ -10,7 +10,7 @@ $login_error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    require 'db_connect_admin.php';
+    require '../php/db_connect.php';
 
     $username = htmlspecialchars(trim($_POST['username']));
     $password = htmlspecialchars(trim($_POST['password']));
@@ -178,17 +178,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <header>
         <div class="header-container">
             <a href="../index.html" class="logo">
-                <i class="fas fa-dna"></i>
+                <i class="fa-solid fa-lungs"></i>
                 <span>Lung TFDB</span>
             </a>
             <div class="nav-container">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
                 <button class="menu-toggle" id="menuToggle">
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="nav-menu-admin" id="navMenu">
-                    <button class="theme-toggle" id="themeToggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
+                    <a href="../protein_seq.html" class="nav-link">Protein Sequence</a>
+                    <a href="../mutations.html" class="nav-link">Mutations</a>
+                    <a href="../binding.html" class="nav-link">Binding Sites</a>
+                    <a href="../scrna.html" class="nav-link">scRNA-seq</a>
+                    <a href="../expr.html" class="nav-link">Expression</a>
+                    <a href="../survR.html" class="nav-link">Survival</a>
+                    <a href="../contact.html" class="nav-link">Contact</a>
                 </div>
             </div>
         </div>
@@ -214,6 +221,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
         </div>
     </main>
+
+        <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Lung TFDB</h3>
+                <p>A comprehensive database for lung cancer transcription factors with integrated multi-omics data and analysis tools.</p>
+                <div class="social-links">
+                    <a href="https://akkis-lab.github.io/ott-lab/index.html"><i class="fa-solid fa-globe"></i></a>
+                    <a href="https://www.linkedin.com/in/guruguhan-s/"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/RustyAlgorithm44/Lung_TFDB"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="documentation.html">Documentation</a></li>
+                    <li><a href="admin/admin_login.php">Admin</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="tutorials.html">Tutorials</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="sitemap.html">Sitemap</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2025 SSNCCPR. All rights reserved.</p>
+        </div>
+    </footer>
+
     <script src="../js/jquery-3.6.0.min.js"></script>
     <script src="../js/main.js"></script>
     <script>

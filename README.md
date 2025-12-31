@@ -4,7 +4,7 @@
 
 Lung-TFDB is a comprehensive web-based resource for lung cancer research and analysis, with a focus on integrated multi-omics data for transcription factors (TFs). It provides an interactive platform for researchers to explore, analyze, and visualize complex biological data.
 
-**Live frontend preview:** [https://rustyalgorithm44.github.io/Lung_TFDB/](https://rustyalgorithm44.github.io/Lung_TFDB/)
+**Access it here:** [https://lungtfdb.bioinference.in](https://lungtfdb.bioinference.in)
 
 ![Homepage Screenshot](images/index_page.png)
 

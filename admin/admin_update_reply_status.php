@@ -9,8 +9,8 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $servername = "localhost";
-    $username_db = "root";
-    $password_db = "";
+    $username_db = "tfdb_user";
+    $password_db = "tfdb_guest";
     $dbname = "tfdb";
 
     $conn = new mysqli($servername, $username_db, $password_db, $dbname);
