@@ -405,7 +405,6 @@
             
             // Hide source options by default
             document.getElementById('sourceOptions').style.display = 'none';
-            document.getElementById('sourceOptions').style.display = 'none';
             tumorOnlyCheckbox.checked = false;
             groupBySourceCheckbox.checked = false;
             tumorOnlyCheckbox.disabled = true; // Disable them until dataset dictates
@@ -528,14 +527,19 @@
         // Function to populate the dropdown with filtered options
         function populateDropdown(items) {
             dropdown.innerHTML = '';
-            if (items.length === 0) {
+            
+            // Limit to first 100 matches for performance
+            const displayItems = items.slice(0, 100);
+            
+            if (displayItems.length === 0) {
                 const noResults = document.createElement('div');
                 noResults.classList.add('option');
                 noResults.textContent = 'No matching genes found.';
                 dropdown.appendChild(noResults);
                 return;
             }
-            items.forEach(item => {
+
+            displayItems.forEach(item => {
                 const option = document.createElement('div');
                 option.classList.add('option');
                 option.textContent = item;
@@ -549,23 +553,30 @@
                 });
                 dropdown.appendChild(option);
             });
+
+            if (items.length > 100) {
+                const moreResults = document.createElement('div');
+                moreResults.classList.add('option');
+                moreResults.style.fontStyle = 'italic';
+                moreResults.style.color = '#888';
+                moreResults.textContent = `... and ${items.length - 100} more. Keep typing to narrow down.`;
+                dropdown.appendChild(moreResults);
+            }
         }
 
         // Filter options based on input
-        dropdownSearch.addEventListener('click', function () {
-            if (this.disabled) return; // Do nothing if disabled
+        dropdownSearch.addEventListener('focus', function () {
+            if (this.disabled) return;
             const searchTerm = dropdownSearch.value.toLowerCase();
             const filteredData = data.filter(item => item.toLowerCase().includes(searchTerm));
             if (filteredData.length > 0) {
                 populateDropdown(filteredData);
                 dropdown.classList.add('visible');
-            } else {
-                dropdown.classList.remove('visible');
             }
         });
 
         dropdownSearch.addEventListener('input', function() {
-            if (this.disabled) return; // Do nothing if disabled
+            if (this.disabled) return;
             const searchTerm = dropdownSearch.value.toLowerCase();
             const filteredData = data.filter(item => item.toLowerCase().includes(searchTerm));
 
