@@ -32,7 +32,7 @@ This database provides a suite of tools for comprehensive TF analysis in the con
     -   [Font Awesome](https://fontawesome.com/) for icons.
 -   **Backend:** PHP
 -   **Data Analysis & Visualization:** The backend leverages **R** for statistical computing and generating plots (e.g., survival analysis).
--   **Hosting Environment:** Designed for a standard WAMP (Windows, Apache, MySQL, PHP) or LAMP (Linux) server stack.
+-   **Hosting Environment:** A standard Linux (Linux, Apache, MySQL, PHP) server stack.
 
 ---
 ## 📂 File Structure
@@ -61,14 +61,13 @@ The data integrated into Lung-TFDB is compiled and curated from several high-qua
 -   **The Cancer Genome Atlas (TCGA)**
 -   **Gene Expression Omnibus (GEO)**
 -   **cBioPortal for Cancer Genomics**
--   Other relevant scientific publications.
 
 ---
 
 ## 📞 Contact & Credits
 
--   **Developer:** Guruguhan S ([LinkedIn](https://www.linkedin.com/in/guruguhan-s/))
--   **Lab/Affiliation:** [Akkis-Lab](https://akkis-lab.github.io/ott-lab/index.html)
--   **Copyright:** © 2025 SSNCCPR. All rights reserved.
+-   **Developer:** Guruguhan Sivakumar ([LinkedIn](https://www.linkedin.com/in/guruguhan-s/))
+-   **Lab/Affiliation:** [Omics To Therapy Team](https://akkis-lab.github.io/ott-lab/index.html)
+-   **Copyright:** © 2026 SSNCCPR. All rights reserved.
 
 For inquiries, please use the [Contact](contact.html) form on the website.

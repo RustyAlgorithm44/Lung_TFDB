@@ -38,7 +38,6 @@ if ($result && $result->num_rows > 0) {
                     <th>TF_chr</th>
                     <th>TF_start</th>
                     <th>TF_end</th>
-                    <th>SampleID</th>
                     <th>Promoter_chr</th>
                     <th>Promoter_start</th>
                     <th>Promoter_end</th>
@@ -52,7 +51,6 @@ if ($result && $result->num_rows > 0) {
             echo "<td>" . $row['TF_chr'] . "</td>";
             echo "<td>" . $row['TF_start'] . "</td>";
             echo "<td>" . $row['TF_end'] . "</td>";
-            echo "<td>" . $row['SampleID'] . "</td>";
             echo "<td>" . $row['Promoter_chr'] . "</td>";
             echo "<td>" . $row['Promoter_start'] . "</td>";
             echo "<td>" . $row['Promoter_end'] . "</td>";
