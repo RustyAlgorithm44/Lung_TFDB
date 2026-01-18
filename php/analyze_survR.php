@@ -394,10 +394,14 @@ run_analysis <- function(time_col, status_col, type, output_file) {
     fit$call$formula <- formula
     
     # Plot
-    png(output_file, width = 8, height = 6.5, units = "in", res = 300)
+    #png(output_file, width = 8, height = 6.5, units = "in", res = 300)
+    
+    # Prevent default device creation (Rplots.pdf)
+    pdf(NULL)
     
     p <- ggsurvplot(
         fit,
+        risk.table = TRUE,
         data = sub_data,
         pval = plot_text, # Use the combined text for p-value and HR
         pval.coord = c(max(sub_data[[time_col]], na.rm = TRUE) * 0.05, 0.15), # Adjust position
@@ -422,8 +426,23 @@ run_analysis <- function(time_col, status_col, type, output_file) {
     strip.text = element_text(size = 14)     # Facet labels (if applicable)
     )
 
-    print(p)
-    invisible(dev.off())
+    # print(p) <--- Removed to prevent Rplots.pdf creation error
+    #invisible(dev.off())
+    
+    combined_plot <- arrange_ggsurvplots(
+        list(p),
+        ncol = 1,
+        print = FALSE
+    )
+
+    ggsave(
+        filename = output_file,
+        plot = combined_plot,
+        width = 8,
+        height = 6.5,
+        units = "in",
+        dpi = 300
+    )
 }
 ';
 

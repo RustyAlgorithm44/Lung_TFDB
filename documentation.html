@@ -1,21 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-552HNY58WN"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-552HNY58WN');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentation | Lung TFDB</title>
     <link rel="icon" href="favicon_io/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/cookie-consent.css">
     <style>
         .documentation-container {
             display: flex;
@@ -229,28 +221,25 @@
         </div>
     </footer>
 
+    <script src="js/jquery-3.6.0.min.js"></script>
     <script src="js/main.js"></script>
     <script>
-        // Active state for sidebar navigation
-        const sections = document.querySelectorAll('.doc-section');
-        const navLinks = document.querySelectorAll('.doc-sidebar-nav a');
-
-        window.addEventListener('scroll', () => {
-            let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                if (pageYOffset >= sectionTop - 120) {
-                    current = section.getAttribute('id');
-                }
-            });
-
-            navLinks.forEach(a => {
-                a.classList.remove('active');
-                if (a.getAttribute('href').includes(current)) {
-                    a.classList.add('active');
-                }
+        // Smooth scrolling for sidebar links
+        $(document).ready(function() {
+            // Highlight active link on scroll
+            $(window).scroll(function() {
+                var position = $(this).scrollTop();
+                $('.doc-section').each(function() {
+                    var target = $(this).offset().top - 150;
+                    var id = $(this).attr('id');
+                    if (position >= target) {
+                        $('.doc-sidebar-nav li a').removeClass('active');
+                        $('.doc-sidebar-nav li a[href="#' + id + '"]').addClass('active');
+                    }
+                });
             });
         });
     </script>
+    <script src="js/cookie-consent.js"></script>
 </body>
 </html>
