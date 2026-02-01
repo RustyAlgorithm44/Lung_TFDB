@@ -78,6 +78,18 @@ if ($annotationType === 'DefaultAnnotation') {
 $rScriptPath = '/var/www/Lung_TFDB/plots/scRNA_plot_script.R'; // Temporary R script location
 $logPath = '/var/www/Lung_TFDB/plots/scrna_log.txt'; // Log file path
 
+// Determine optimal thread count based on system load
+$cpu_cores = intval(shell_exec('nproc'));
+$load = sys_getloadavg();
+$current_load = $load[0]; // 1-minute load average
+// Calculate available threads: (Cores - Load), ensure at least 1, max cap at 6 to prevent OOM
+$worker_count = max(1, min(6, floor($cpu_cores - $current_load)));
+
+// Check for QS file alternative
+$qsFilePath = str_replace('.rds', '.qs', $rdsFilePath);
+$useQs = file_exists($qsFilePath);
+$finalFilePath = $useQs ? $qsFilePath : $rdsFilePath;
+
 // Generate R script dynamically
 // Modify the R script generation part
 $rScriptContent = "
@@ -90,9 +102,18 @@ library(readr)
 library(base64enc)
 library(patchwork) # For combining plots
 library(dplyr)     # For data manipulation
+library(future)    # For parallel processing
+library(qs)        # For fast reading
 
 # Load Seurat object
-nsclc.seurat.obj <- read_rds('" . $rdsFilePath . "')
+input_file <- '" . $finalFilePath . "'
+if (grepl('\\\\.qs$', input_file)) {
+    cat('R Debug: Loading QS file with " . $worker_count . " threads\\n', file = stderr())
+    nsclc.seurat.obj <- qread(input_file, nthreads = " . $worker_count . ")
+} else {
+    cat('R Debug: Loading RDS file\\n', file = stderr())
+    nsclc.seurat.obj <- read_rds(input_file)
+}
 
 # Create temporary files for base64 encoding
 temp_dir <- tempdir()
@@ -125,65 +146,91 @@ if (tumor_only && has_source) {
     cat('R Debug: Dimensions after subset:', paste(dim(nsclc.seurat.obj), collapse = 'x'), '\n', file = stderr())
 }
 
+# Set up parallel execution plan
+# using multicore which relies on forking (efficient for read-only shared memory)
+plan(multicore, workers = " . $worker_count . ")
+cat('R Debug: Using " . $worker_count . " workers for parallel plotting\n', file = stderr())
+
+# Define futures for each plot
 # DimPlot
-dimplot_file <- tempfile(pattern = 'dimplot_', tmpdir = temp_dir, fileext = '.png')
-png(dimplot_file, width = 7.2, height = 6, units = 'in', res = 300)
-print(DimPlot(nsclc.seurat.obj, reduction = 'umap', group.by = '" . $rAnnotationColumn . "', label = TRUE, repel = TRUE))
-invisible(dev.off())
-dimplot_base64 <- base64encode(dimplot_file)
-unlink(dimplot_file)
+f_dimplot <- future({
+    dimplot_file <- tempfile(pattern = 'dimplot_', tmpdir = temp_dir, fileext = '.png')
+    png(dimplot_file, width = 7.2, height = 6, units = 'in', res = 300)
+    print(DimPlot(nsclc.seurat.obj, reduction = 'umap', group.by = '" . $rAnnotationColumn . "', label = TRUE, repel = TRUE))
+    invisible(dev.off())
+    b64 <- base64encode(dimplot_file)
+    unlink(dimplot_file)
+    b64
+}, seed = TRUE)
 
 # FeaturePlot
-featureplot_file <- tempfile(pattern = 'featureplot_', tmpdir = temp_dir, fileext = '.png')
-png(featureplot_file, width = 7.2, height = 6, units = 'in', res = 300)
-print(FeaturePlot(nsclc.seurat.obj, features = c('" . implode("', '", $genes) . "')))
-invisible(dev.off())
-featureplot_base64 <- base64encode(featureplot_file)
-unlink(featureplot_file)
+f_featureplot <- future({
+    featureplot_file <- tempfile(pattern = 'featureplot_', tmpdir = temp_dir, fileext = '.png')
+    png(featureplot_file, width = 7.2, height = 6, units = 'in', res = 300)
+    print(FeaturePlot(nsclc.seurat.obj, features = c('" . implode("', '", $genes) . "')))
+    invisible(dev.off())
+    b64 <- base64encode(featureplot_file)
+    unlink(featureplot_file)
+    b64
+}, seed = TRUE)
 
 # VlnPlot
-vlnplot_file <- tempfile(pattern = 'vlnplot_', tmpdir = temp_dir, fileext = '.png')
-png(vlnplot_file, width = 7.2, height = 6, units = 'in', res = 300)
-print(VlnPlot(nsclc.seurat.obj, features = c('" . implode("', '", $genes) . "'), group.by = '" . $rAnnotationColumn . "'))
-invisible(dev.off())
-vlnplot_base64 <- base64encode(vlnplot_file)
-unlink(vlnplot_file)
+f_vlnplot <- future({
+    vlnplot_file <- tempfile(pattern = 'vlnplot_', tmpdir = temp_dir, fileext = '.png')
+    png(vlnplot_file, width = 7.2, height = 6, units = 'in', res = 300)
+    print(VlnPlot(nsclc.seurat.obj, features = c('" . implode("', '", $genes) . "'), group.by = '" . $rAnnotationColumn . "'))
+    invisible(dev.off())
+    b64 <- base64encode(vlnplot_file)
+    unlink(vlnplot_file)
+    b64
+}, seed = TRUE)
 
-# DotPlot (showing expression levels across cell types)
-dotplot_file <- tempfile(pattern = 'dotplot_', tmpdir = temp_dir, fileext = '.png')
-png(dotplot_file, width = 7.2, height = 6, units = 'in', res = 300)
-print(DotPlot(nsclc.seurat.obj, features = c('" . implode("', '", $genes) . "'), group.by = '" . $rAnnotationColumn . "') + 
-    RotatedAxis() +
-    scale_color_gradient2(low = 'blue', mid = 'white', high = 'red') +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)))
-invisible(dev.off())
-dotplot_base64 <- base64encode(dotplot_file)
-unlink(dotplot_file)
+# DotPlot
+f_dotplot <- future({
+    dotplot_file <- tempfile(pattern = 'dotplot_', tmpdir = temp_dir, fileext = '.png')
+    png(dotplot_file, width = 7.2, height = 6, units = 'in', res = 300)
+    print(DotPlot(nsclc.seurat.obj, features = c('" . implode("', '", $genes) . "'), group.by = '" . $rAnnotationColumn . "') + 
+        RotatedAxis() +
+        scale_color_gradient2(low = 'blue', mid = 'white', high = 'red') +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1)))
+    invisible(dev.off())
+    b64 <- base64encode(dotplot_file)
+    unlink(dotplot_file)
+    b64
+}, seed = TRUE)
 
-# Source plot (only if source column exists and group_by_source is TRUE)
-if (group_by_source && has_source) {
-    tryCatch({
-        sourceplot_file <- tempfile(pattern = 'sourceplot_', tmpdir = temp_dir, fileext = '.png')
-        png(sourceplot_file, width = 7.2, height = 6, units = 'in', res = 300)
-        print(DimPlot(nsclc.seurat.obj, reduction = 'umap', group.by = 'source', label = FALSE))
-        dev.off()
+# Source plot (conditional)
+f_sourceplot <- future({
+    b64 <- NULL
+    if (group_by_source && has_source) {
+        tryCatch({
+            sourceplot_file <- tempfile(pattern = 'sourceplot_', tmpdir = temp_dir, fileext = '.png')
+            png(sourceplot_file, width = 7.2, height = 6, units = 'in', res = 300)
+            print(DimPlot(nsclc.seurat.obj, reduction = 'umap', group.by = 'source', label = FALSE))
+            dev.off()
 
-        if (file.exists(sourceplot_file) && file.size(sourceplot_file) > 0) {
-            cat('Source plot file exists with size:', file.size(sourceplot_file), '\n', file = stderr())
-            sourceplot_base64 <- base64encode(sourceplot_file)
-        } else {
-            cat('Source plot file is empty or missing\n', file = stderr())
-        }
-        unlink(sourceplot_file)
-    }, error = function(e) {
-        cat('Error generating source plot:', e\$message, '\n', file = stderr())
-    })
-}
+            if (file.exists(sourceplot_file) && file.size(sourceplot_file) > 0) {
+                b64 <- base64encode(sourceplot_file)
+            }
+            unlink(sourceplot_file)
+        }, error = function(e) {
+            # Handle error silently or return error string? better null
+        })
+    }
+    b64
+}, seed = TRUE)
+
+# Collect results from futures
+dimplot_base64 <- value(f_dimplot)
+featureplot_base64 <- value(f_featureplot)
+vlnplot_base64 <- value(f_vlnplot)
+dotplot_base64 <- value(f_dotplot)
+sourceplot_base64 <- value(f_sourceplot)
 
 # Debug statements
 cat('\nDebug: has_source =', has_source, '\n', file = stderr())
 cat('Debug: group_by_source =', group_by_source, '\n', file = stderr())
-if (group_by_source && has_source) {
+if (!is.null(sourceplot_base64)) {
     cat('Debug: sourceplot generated\n', file = stderr())
 } else {
     cat('Debug: sourceplot not generated\n', file = stderr())

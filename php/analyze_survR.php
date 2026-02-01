@@ -327,16 +327,30 @@ if ($dataset === 'gse30219_adeno' || $dataset === 'gse30219_squam') {
     $plot_types = ['DFS' => ['time' => 'DFS_MONTHS', 'status' => 'DFS_STATUS']];
 }
 
+// Determine optimal thread count based on system load
+$cpu_cores = intval(shell_exec('nproc'));
+$load = sys_getloadavg();
+$current_load = $load[0]; // 1-minute load average
+$worker_count = max(1, min(6, floor($cpu_cores - $current_load)));
+
 $r_code = '
 .libPaths("/home/guruguhan/R/x86_64-pc-linux-gnu-library/4.5")
 library(survival)
 library(survminer)
 library(ggplot2)
+library(future.apply)
+
+# Configure parallel processing
+plan(multicore, workers = ' . $worker_count . ')
 
 data <- read.csv("' . $data_for_r_path . '", stringsAsFactors = FALSE, check.names = FALSE)
 
 # Function to run analysis and plot
-run_analysis <- function(time_col, status_col, type, output_file) {
+run_analysis <- function(task) {
+    time_col <- task$time
+    status_col <- task$status
+    type <- task$type
+    output_file <- task$output_file
     
     # Filter missing data
     sub_data <- data[!is.na(data[[time_col]]) & !is.na(data[[status_col]]), ]
@@ -394,8 +408,6 @@ run_analysis <- function(time_col, status_col, type, output_file) {
     fit$call$formula <- formula
     
     # Plot
-    #png(output_file, width = 8, height = 6.5, units = "in", res = 300)
-    
     # Prevent default device creation (Rplots.pdf)
     pdf(NULL)
     
@@ -444,22 +456,34 @@ run_analysis <- function(time_col, status_col, type, output_file) {
         dpi = 300
     )
 }
+
+# Define tasks
+tasks <- list(
 ';
 
-// Add calls to run_analysis for each plot type
+$tasks_list = [];
 foreach ($plot_types as $type => $cols) {
     $output_file = "../plots/{$unique_id}_{$type}.png";
     // Escape backslashes for R string
     $output_file_r = str_replace('\\', '/', $output_file);
     
-    $r_code .= '
-tryCatch({
-    run_analysis("' . $cols['time'] . '", "' . $cols['status'] . '", "' . $type . '", "' . $output_file_r . '")
-}, error = function(e) {
-    print(paste("Error processing ' . $type . ':", e$message))
+    $tasks_list[] = '  list(time="' . $cols['time'] . '", status="' . $cols['status'] . '", type="' . $type . '", output_file="' . $output_file_r . '")';
+}
+
+$r_code .= implode(",\n", $tasks_list);
+
+$r_code .= '
+)
+
+# Execute in parallel
+future_lapply(tasks, function(task) {
+    tryCatch({
+        run_analysis(task)
+    }, error = function(e) {
+        print(paste("Error processing", task$type, ":", e$message))
+    })
 })
 ';
-}
 
 file_put_contents($r_script_path, $r_code);
 log_message("R script generated at $r_script_path");
