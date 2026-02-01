@@ -2,79 +2,79 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://lungtfdb.bioinference.in</loc>
-    <lastmod>2026-01-18</lastmod>
+    <lastmod>2026-02-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://lungtfdb.bioinference.in/index.html</loc>
-    <lastmod>2026-01-18</lastmod>
+    <lastmod>2026-02-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://lungtfdb.bioinference.in/binding.html</loc>
-    <lastmod>2026-01-18</lastmod>
+    <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://lungtfdb.bioinference.in/contact.html</loc>
-    <lastmod>2026-01-18</lastmod>
+    <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://lungtfdb.bioinference.in/documentation.html</loc>
-    <lastmod>2026-01-18</lastmod>
+    <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://lungtfdb.bioinference.in/expr.html</loc>
-    <lastmod>2026-01-18</lastmod>
+    <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://lungtfdb.bioinference.in/faq.html</loc>
-    <lastmod>2026-01-18</lastmod>
+    <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://lungtfdb.bioinference.in/mutations.html</loc>
-    <lastmod>2026-01-18</lastmod>
+    <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://lungtfdb.bioinference.in/protein_seq.html</loc>
-    <lastmod>2026-01-18</lastmod>
+    <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://lungtfdb.bioinference.in/scrna.html</loc>
-    <lastmod>2026-01-18</lastmod>
+    <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://lungtfdb.bioinference.in/sitemap.html</loc>
-    <lastmod>2026-01-18</lastmod>
+    <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://lungtfdb.bioinference.in/survR.html</loc>
-    <lastmod>2026-01-18</lastmod>
+    <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://lungtfdb.bioinference.in/tutorials.html</loc>
-    <lastmod>2026-01-18</lastmod>
+    <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
