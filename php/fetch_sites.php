@@ -14,8 +14,8 @@ if ($conn->connect_error) {
 }
 
 // Get the table name and other parameters
-$table = isset($_POST['geneName']) ? strtolower(trim($_POST['geneName'])) : '';
-$filterGene = isset($_POST['filterGene']) ? strtoupper(trim($_POST['filterGene'])) : '';
+$table = isset($_POST['geneName']) ? mysqli_real_escape_string($conn, strtolower(trim($_POST['geneName']))) : '';
+$filterGene = isset($_POST['filterGene']) ? mysqli_real_escape_string($conn, strtoupper(trim($_POST['filterGene']))) : '';
 $page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
 $limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 100;
 $offset = ($page - 1) * $limit;

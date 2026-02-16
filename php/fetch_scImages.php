@@ -29,10 +29,12 @@ $groupBySource = isset($_POST['groupBySource']) && $_POST['groupBySource'] === '
 
 // Split the genes string by commas and clean whitespace
 $genes = explode(',', $_POST['selectedGenes']);
-$genes = array_map('trim', $genes); // Trim whitespace
+$genes = array_map(function($g) {
+    return str_replace("'", "\\'", trim($g));
+}, $genes); // Trim and escape single quotes for R
 
 // Get the selected annotation type
-$annotationType = $_POST['annotationType'];
+$annotationType = str_replace("'", "\\'", $_POST['annotationType']);
 
 // Get the selected dataset name
 $datasetName = $_POST['datasetName'];

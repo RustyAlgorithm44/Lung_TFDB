@@ -237,19 +237,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="footer-column">
                 <h3>Quick Links</h3>
                 <ul class="footer-links">
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="contact.html">Contact Us</a></li>
-                    <li><a href="documentation.html">Documentation</a></li>
-                    <li><a href="admin/admin_login.php">Admin</a></li>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="../contact.html">Contact Us</a></li>
+                    <li><a href="../documentation.html">Documentation</a></li>
+                    <li><a href="admin_login.php">Admin</a></li>
                 </ul>
             </div>
             
             <div class="footer-column">
                 <h3>Resources</h3>
                 <ul class="footer-links">
-                    <li><a href="tutorials.html">Tutorials</a></li>
-                    <li><a href="faq.html">FAQ</a></li>
-                    <li><a href="sitemap.html">Sitemap</a></li>
+                    <li><a href="../tutorials.html">Tutorials</a></li>
+                    <li><a href="../faq.html">FAQ</a></li>
+                    <li><a href="../sitemap.html">Sitemap</a></li>
                 </ul>
             </div>
         </div>

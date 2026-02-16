@@ -291,3 +291,44 @@ footer {
         padding: 2rem 1rem;
     }
 }
+
+/* Custom Gene Dropdown */
+.gene-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 250px;
+    overflow-y: auto;
+    background-color: var(--card-bg);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 0.5rem 0.5rem;
+    box-shadow: var(--shadow);
+    z-index: 1001;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.gene-dropdown li {
+    padding: 0.8rem 1.2rem;
+    cursor: pointer;
+    transition: var(--transition);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    color: var(--text-color);
+}
+
+.gene-dropdown li:last-child {
+    border-bottom: none;
+}
+
+.gene-dropdown li:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Ensure form-group has relative positioning for dropdown */
+.form-group {
+    position: relative;
+}

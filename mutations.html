@@ -255,8 +255,8 @@
                 </div>
                 <div class="form-group">
                     <label for="geneName">Enter TF Symbol:</label>
-                    <input type="text" id="geneName" name="geneName" autocomplete="off">
-                    <select id="geneDropdown" size="5"></select>
+                    <input type="text" id="geneName" name="geneName" autocomplete="off" placeholder="Start typing gene name...">
+                    <ul id="geneDropdown" class="gene-dropdown"></ul>
                 </div>
                 <div class="btn-group">
                     <button type="submit" class="btn" id="submitBtn">
@@ -353,18 +353,19 @@
                 let matches = matchGene(inputVal, geneList);
                 let dropdown = $('#geneDropdown');
                 dropdown.empty();
-                matches.forEach(match => {
-                    dropdown.append('<option value="' + match + '">' + match + '</option>');
-                });
-                if (matches.length > 0) {
+                
+                if (matches.length > 0 && inputVal.length > 0) {
+                    matches.forEach(match => {
+                        dropdown.append('<li>' + match + '</li>');
+                    });
                     dropdown.show();
                 } else {
                     dropdown.hide();
                 }
             });
 
-            $('#geneDropdown').on('click', 'option', function(){
-                var selectedValue = $(this).val();
+            $('#geneDropdown').on('click', 'li', function(){
+                var selectedValue = $(this).text();
                 $('#geneName').val(selectedValue);
                 $('#geneDropdown').hide();
             });
@@ -380,6 +381,7 @@
                 }
 
                 $('#loading').show();
+                $('#results').empty();
 
                 $.ajax({
                     url: 'php/fetch_mutations.php',
@@ -396,6 +398,12 @@
                         $('#loading').hide();
                     }
                 });
+            });
+
+            $(document).on('click', function(event) {
+                if (!$(event.target).closest('.form-group').length) {
+                    $('#geneDropdown').hide();
+                }
             });
 
             function wrapTextWithCommas() {

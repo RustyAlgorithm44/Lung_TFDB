@@ -42,9 +42,9 @@ function median($values) {
 
 // --- Input Handling ---
 
-$dataset = isset($_POST['dataset']) ? $_POST['dataset'] : '';
-$geneName = isset($_POST['geneName']) ? strtoupper($_POST['geneName']) : ''; // Ensure gene name is uppercase
-$analysisType = isset($_POST['analysisType']) ? $_POST['analysisType'] : '';
+$dataset = isset($_POST['dataset']) ? mysqli_real_escape_string($conn, $_POST['dataset']) : '';
+$geneName = isset($_POST['geneName']) ? mysqli_real_escape_string($conn, strtoupper($_POST['geneName'])) : '';
+$analysisType = isset($_POST['analysisType']) ? mysqli_real_escape_string($conn, $_POST['analysisType']) : '';
 
 log_message("New Analysis Request: Dataset=$dataset, Gene=$geneName, Type=$analysisType");
 

@@ -283,7 +283,7 @@
                 <div class="form-group">
                     <label for="dropdownSearch">Choose one or more gene symbols:</label>
                     <input type="text" id="dropdownSearch" name="geneName" placeholder="Start typing..." autocomplete="off" disabled>
-                    <div id="dropdown"></div>
+                    <ul id="dropdown" class="gene-dropdown"></ul>
                 </div>
                 
                 <div class="form-group">
@@ -535,16 +535,15 @@
             const displayItems = items.slice(0, 100);
             
             if (displayItems.length === 0) {
-                const noResults = document.createElement('div');
-                noResults.classList.add('option');
+                const noResults = document.createElement('li');
                 noResults.textContent = 'No matching genes found.';
+                noResults.style.cursor = 'default';
                 dropdown.appendChild(noResults);
                 return;
             }
 
             displayItems.forEach(item => {
-                const option = document.createElement('div');
-                option.classList.add('option');
+                const option = document.createElement('li');
                 option.textContent = item;
                 option.addEventListener('click', function () {
                     if (!selectedGeneList.includes(item)) {
@@ -558,11 +557,11 @@
             });
 
             if (items.length > 100) {
-                const moreResults = document.createElement('div');
-                moreResults.classList.add('option');
+                const moreResults = document.createElement('li');
                 moreResults.style.fontStyle = 'italic';
                 moreResults.style.color = '#888';
-                moreResults.textContent = `... and ${items.length - 100} more. Keep typing to narrow down.`;
+                moreResults.style.cursor = 'default';
+                moreResults.textContent = `... and ${items.length - 100} more.`;
                 dropdown.appendChild(moreResults);
             }
         }

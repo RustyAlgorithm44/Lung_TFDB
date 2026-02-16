@@ -252,18 +252,18 @@
                 </div>
                 <div class="form-group">
                     <label for="geneName">Enter TF Symbol:</label>
-                    <input type="text" id="geneName" name="geneName" autocomplete="off">
-                    <select id="geneDropdown" size="5"></select>
+                    <input type="text" id="geneName" name="geneName" autocomplete="off" placeholder="Start typing gene name...">
+                    <ul id="geneDropdown" class="gene-dropdown"></ul>
                 </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="addJitter" name="addJitter" onchange="toggleJitterColor()">
+                <div class="form-group" style="display: flex; align-items: center; gap: 1rem;">
+                    <label style="margin-bottom: 0; display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="addJitter" name="addJitter" onchange="toggleJitterColor()" style="margin-left: 0; margin-right: 0.5rem;">
                         Add Jitter
                     </label>
-                </div>
-                <div class="form-group" id="jitterColorPicker" style="display: none;">
-                    <label for="jitterColor">Choose Jitter Color:</label>
-                    <input type="color" id="jitterColor" name="jitterColor" value="#000000">
+                    <div id="jitterColorPicker" style="display: none; align-items: center; gap: 0.5rem;">
+                        <label for="jitterColor" style="margin-bottom: 0;">Color:</label>
+                        <input type="color" id="jitterColor" name="jitterColor" value="#000000">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="statTest">Select Statistical Test:</label>
@@ -365,18 +365,19 @@
                 let matches = matchGene(inputVal, geneList);
                 let dropdown = $('#geneDropdown');
                 dropdown.empty();
-                matches.forEach(match => {
-                    dropdown.append('<option value="' + match + '">' + match + '</option>');
-                });
-                if (matches.length > 0) {
+                
+                if (matches.length > 0 && inputVal.length > 0) {
+                    matches.forEach(match => {
+                        dropdown.append('<li>' + match + '</li>');
+                    });
                     dropdown.show();
                 } else {
                     dropdown.hide();
                 }
             });
 
-            $('#geneDropdown').on('click', function() {
-                var selectedValue = $(this).val();
+            $('#geneDropdown').on('click', 'li', function() {
+                var selectedValue = $(this).text();
                 $('#geneName').val(selectedValue);
                 $('#geneDropdown').hide();
             });
@@ -384,6 +385,7 @@
             $('#geneForm').on('submit', function(event) {
                 event.preventDefault();
                 $('#loading').show();
+                $('#results').empty();
                 document.querySelector('footer').style.position = 'relative';
                 
                 $.ajax({
@@ -409,18 +411,10 @@
                 }
             });
 
-            $('#geneName').blur(function(){
-                if (!$(this).is(":focus")) {
-                    setTimeout(function() {
-                        $('#geneDropdown').hide();
-                    }, 200);
+            $(document).on('click', function(event) {
+                if (!$(event.target).closest('.form-group').length) {
+                    $('#geneDropdown').hide();
                 }
-            });
-
-            $('#geneDropdown').on('click', 'option', function(){
-                var selectedValue = $(this).val();
-                $('#geneName').val(selectedValue);
-                $('#geneDropdown').hide();
             });
         });
     </script>

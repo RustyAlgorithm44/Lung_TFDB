@@ -25,42 +25,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->close();
         }
     }
-    // Redirect to prevent form re-submission on refresh
     header("Location: admin_dashboard.php" . (isset($_GET['filter']) ? '?filter=' . $_GET['filter'] : ''));
     exit();
 }
+
+// Fetch Stats
+$stats = [];
+$stats['total'] = $conn->query("SELECT COUNT(*) as count FROM contact_form")->fetch_assoc()['count'];
+$stats['unread'] = $conn->query("SELECT COUNT(*) as count FROM contact_form WHERE is_read = 0")->fetch_assoc()['count'];
+$stats['replied'] = $conn->query("SELECT COUNT(*) as count FROM contact_form WHERE is_replied = 1")->fetch_assoc()['count'];
 
 // Filter logic
 $filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
 $sql_where = '';
 switch ($filter) {
-    case 'unread':
-        $sql_where = 'WHERE is_read = 0';
-        break;
-    case 'read':
-        $sql_where = 'WHERE is_read = 1';
-        break;
-    case 'replied':
-        $sql_where = 'WHERE is_replied = 1';
-        break;
-    case 'all':
-    default:
-        $sql_where = '';
-        break;
+    case 'unread': $sql_where = 'WHERE is_read = 0'; break;
+    case 'read': $sql_where = 'WHERE is_read = 1'; break;
+    case 'replied': $sql_where = 'WHERE is_replied = 1'; break;
+    default: $sql_where = ''; break;
 }
 
-
-// Fetch contact form entries, with new sorting
-$sql = "SELECT id, Name, Email, Subject, Message, Time, is_read, is_replied, read_at, replied_at FROM contact_form " . $sql_where . " ORDER BY is_read ASC, is_replied ASC, Time DESC";
+// Fetch messages
+$sql = "SELECT * FROM contact_form $sql_where ORDER BY Time DESC";
 $result = $conn->query($sql);
-
-$messages = [];
-if ($result && $result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        $messages[] = $row;
-    }
-}
-
+$messages = $result->fetch_all(MYSQLI_ASSOC);
 $conn->close();
 ?>
 
@@ -74,243 +62,134 @@ $conn->close();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/styles.css">
     <style>
-        .dashboard-container {
-            max-width: 1600px;
-            margin: 2rem auto;
-            padding: 2rem;
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
             background-color: var(--card-bg);
+            padding: 1.5rem;
             border-radius: 0.8rem;
             box-shadow: var(--shadow);
-        }
-
-        .dashboard-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
+            gap: 1rem;
+            border-bottom: 4px solid var(--primary-color);
         }
 
-        .dashboard-header h1 {
+        .stat-icon {
+            font-size: 2rem;
             color: var(--primary-color);
-            font-size: 2.2rem;
-            margin-right: 1rem;
+            opacity: 0.8;
         }
-        
-        .message-filters {
-            margin-bottom: 2rem;
+
+        .stat-info h3 { font-size: 0.9rem; opacity: 0.7; margin: 0; }
+        .stat-info p { font-size: 1.8rem; font-weight: 700; margin: 0; }
+
+        .filter-nav {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
             flex-wrap: wrap;
         }
 
         .filter-btn {
-            background-color: transparent;
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            background-color: var(--card-bg);
+            color: var(--text-color);
             font-weight: 600;
-            cursor: pointer;
             transition: var(--transition);
-        }
-
-        .filter-btn:hover {
-            background-color: var(--primary-color);
-            color: white;
+            box-shadow: var(--shadow);
         }
 
         .filter-btn.active {
             background-color: var(--primary-color);
             color: white;
-            box-shadow: 0 0 10px rgba(67, 97, 238, 0.4);
-        }
-
-
-        .logout-btn {
-            background-color: #d9534f;
-            color: white;
-            padding: 0.6rem 1.2rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .logout-btn:hover {
-            background-color: #c9302c;
-            transform: translateY(-2px);
-        }
-
-        .message-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
         }
 
         .message-card {
-            background-color: var(--bg-color);
+            background-color: var(--card-bg);
+            border-radius: 1rem;
             padding: 1.5rem;
-            border-radius: 0.8rem;
+            margin-bottom: 1.5rem;
             box-shadow: var(--shadow);
-            border-left: 5px solid var(--primary-color);
-            position: relative;
-            min-width: 300px;
-        }
-
-        .message-card.read {
-            border-left: 5px solid #6c757d; /* Grey for read messages */
-            opacity: 0.8;
-        }
-        
-        .message-card.unread {
-            border-left: 5px solid #28a745; /* Green for unread messages */
-        }
-        
-        .message-card.replied {
-            border-left: 5px solid var(--secondary-color);
-        }
-
-
-        .message-card h3 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-            font-size: 1.4rem;
-        }
-
-        .message-card p {
-            margin-bottom: 0.5rem;
-            color: var(--text-color);
-        }
-
-        .message-card .email, .message-card .time {
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-
-        .message-actions {
-            margin-top: 1rem;
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-
-        .message-actions button {
-            padding: 0.6rem 1rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-weight: 500;
-            cursor: pointer;
+            border-left: 6px solid #ccc;
             transition: var(--transition);
+        }
+
+        .message-card.unread { border-left-color: #2ecc71; }
+        .message-card.replied { border-left-color: var(--primary-color); }
+
+        .message-header {
             display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .message-actions .mark-read-btn {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .message-actions .mark-read-btn:hover {
-            background-color: #0056b3;
-        }
-
-        .message-actions .delete-btn {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .message-actions .delete-btn:hover {
-            background-color: #c82333;
-        }
-
-        .message-actions .reply-btn {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .message-actions .reply-btn:hover {
-            background-color: #218838;
-        }
-
-        .reply-form-container {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-            display: none; /* Hidden by default */
-        }
-
-        .reply-form-container label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .reply-form-container input[type="text"],
-        .reply-form-container input[type="email"],
-        .reply-form-container textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 0.5rem;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-size: 1rem;
+            justify-content: space-between;
             margin-bottom: 1rem;
-        }
-
-        .reply-form-container textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .reply-form-container .send-email-btn {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .reply-form-container .send-email-btn:hover {
-            background-color: var(--secondary-color);
-        }
-
-        .nav-menu-admin {
-            display: flex;
-            align-items: center;
+            flex-wrap: wrap;
             gap: 1rem;
         }
 
-        @media (max-width: 768px) {
-            .nav-menu-admin {
-                display: none;
-                flex-direction: column;
-                gap: 1.5rem;
-                background-color: var(--nav-bg);
-                position: absolute;
-                top: 70px;
-                right: 1rem;
-                padding: 1.5rem;
-                border-radius: 0.5rem;
-                box-shadow: var(--shadow);
-                width: 200px;
-                align-items: stretch;
-            }
-            .nav-menu-admin.active {
-                display: flex;
-            }
-            .logout-btn {
-                width: 100%;
-                text-align: center;
-            }
+        .message-subject { color: var(--primary-color); font-size: 1.2rem; margin: 0; }
+        .message-meta { font-size: 0.85rem; opacity: 0.6; }
+
+        .message-body {
+            background-color: rgba(0,0,0,0.03);
+            padding: 1.2rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            white-space: pre-wrap;
+        }
+        .dark-mode .message-body { background-color: rgba(255,255,255,0.05); }
+
+        .message-actions { display: flex; justify-content: flex-end; gap: 1rem; }
+
+        .btn-action {
+            padding: 0.5rem 1rem;
+            border-radius: 0.4rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: var(--transition);
+        }
+
+        .btn-read { background: #3498db; color: white; }
+        .btn-reply { background: #2ecc71; color: white; }
+        .btn-delete { background: #e74c3c; color: white; }
+
+        .reply-box {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dotted #ccc;
+        }
+
+        .reply-box textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 0.8rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .logout-link {
+            color: #e74c3c;
+            font-weight: 600;
+            margin-left: 1rem;
         }
     </style>
 </head>
@@ -319,147 +198,105 @@ $conn->close();
         <div class="header-container">
             <a href="../index.html" class="logo">
                 <i class="fa-solid fa-lungs"></i>
-                <span>Lung TFDB</span>
+                <span>Lung TFDB Admin</span>
             </a>
             <div class="nav-container">
-                <button class="theme-toggle" id="themeToggle">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <button class="menu-toggle" id="menuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="nav-menu-admin" id="navMenu">
-                    <a href="../protein_seq.html" class="nav-link">Protein Sequence</a>
-                    <a href="../mutations.html" class="nav-link">Mutations</a>
-                    <a href="../binding.html" class="nav-link">Binding Sites</a>
-                    <a href="../scrna.html" class="nav-link">scRNA-seq</a>
-                    <a href="../expr.html" class="nav-link">Expression</a>
-                    <a href="../survR.html" class="nav-link">Survival</a>
-                    <a href="../contact.html" class="nav-link">Contact</a>
-                    <form action="admin_logout.php" method="post" style="margin: 0;">
-                        <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                    </form>
-                </div>
+                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <form action="admin_logout.php" method="post" style="display:inline;">
+                    <button type="submit" style="background:none; border:none; cursor:pointer;" class="logout-link">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
             </div>
         </div>
     </header>
 
-    <main class="dashboard-container">
-        <div class="dashboard-header">
-            <h1>Welcome, <?php echo htmlspecialchars($_SESSION['admin_username']); ?>!</h1>
+    <main class="admin-container">
+        <h1 class="section-title">Admin Dashboard</h1>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-inbox"></i></div>
+                <div class="stat-info"><h3>Total</h3><p><?php echo $stats['total']; ?></p></div>
+            </div>
+            <div class="stat-card" style="border-bottom-color: #2ecc71;">
+                <div class="stat-icon" style="color:#2ecc71;"><i class="fas fa-envelope"></i></div>
+                <div class="stat-info"><h3>Unread</h3><p><?php echo $stats['unread']; ?></p></div>
+            </div>
+            <div class="stat-card" style="border-bottom-color: #3498db;">
+                <div class="stat-icon" style="color:#3498db;"><i class="fas fa-reply-all"></i></div>
+                <div class="stat-info"><h3>Replied</h3><p><?php echo $stats['replied']; ?></p></div>
+            </div>
         </div>
 
-        <div class="message-filters">
-            <a href="?filter=all" class="filter-btn <?php if($filter == 'all') echo 'active'; ?>">All</a>
-            <a href="?filter=unread" class="filter-btn <?php if($filter == 'unread') echo 'active'; ?>">Unread</a>
-            <a href="?filter=read" class="filter-btn <?php if($filter == 'read') echo 'active'; ?>">Read</a>
-            <a href="?filter=replied" class="filter-btn <?php if($filter == 'replied') echo 'active'; ?>">Replied</a>
+        <div class="filter-nav">
+            <a href="?filter=all" class="filter-btn <?php echo $filter == 'all' ? 'active' : ''; ?>">All</a>
+            <a href="?filter=unread" class="filter-btn <?php echo $filter == 'unread' ? 'active' : ''; ?>">Unread</a>
+            <a href="?filter=read" class="filter-btn <?php echo $filter == 'read' ? 'active' : ''; ?>">Read</a>
+            <a href="?filter=replied" class="filter-btn <?php echo $filter == 'replied' ? 'active' : ''; ?>">Replied</a>
         </div>
 
         <div class="message-list">
-            <?php if (empty($messages)): ?>
-                <p style="text-align: center; color: var(--text-color);">No contact form entries found for the selected filter.</p>
-            <?php else: ?>
-                <?php foreach ($messages as $message): ?>
-                    <div class="message-card <?php echo $message['is_read'] ? 'read' : 'unread'; ?> <?php echo $message['is_replied'] ? 'replied' : ''; ?>">
-                        <h3>Subject: <?php echo htmlspecialchars($message['Subject']); ?></h3>
-                        <p><strong>Name:</strong> <?php echo htmlspecialchars($message['Name']); ?></p>
-                        <p class="email"><strong>Email:</strong> <?php echo htmlspecialchars($message['Email']); ?></p>
-                        <p><strong>Message:</strong><br><?php echo nl2br(htmlspecialchars($message['Message'])); ?></p>
-                        <p class="time"><strong>Received:</strong> <?php echo htmlspecialchars($message['Time']); ?></p>
-                        <?php if ($message['is_read']): ?>
-                            <p class="time"><strong>Read At:</strong> <?php echo htmlspecialchars($message['read_at']); ?></p>
-                        <?php endif; ?>
-                        <?php if ($message['is_replied']): ?>
-                            <p class="time"><strong>Replied At:</strong> <?php echo htmlspecialchars($message['replied_at']); ?></p>
-                        <?php endif; ?>
-
-                        <div class="message-actions">
-                            <?php if (!$message['is_read']): ?>
-                                <form method="POST" style="display:inline;">
-                                    <input type="hidden" name="id" value="<?php echo $message['id']; ?>">
-                                    <input type="hidden" name="action" value="mark_read">
-                                    <button type="submit" class="mark-read-btn"><i class="fas fa-eye"></i> Mark as Read</button>
-                                </form>
-                            <?php endif; ?>
-                            <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this message?');">
-                                <input type="hidden" name="id" value="<?php echo $message['id']; ?>">
-                                <input type="hidden" name="action" value="delete">
-                                <button type="submit" class="delete-btn"><i class="fas fa-trash-alt"></i> Delete</button>
-                            </form>
-                            <button type="button" class="reply-btn" data-email="<?php echo htmlspecialchars($message['Email']); ?>" data-subject="Re: <?php echo htmlspecialchars($message['Subject']); ?>" data-message-id="<?php echo $message['id']; ?>">
-                                <i class="fas fa-reply"></i> <?php echo $message['is_replied'] ? 'Replied' : 'Reply'; ?>
-                            </button>
+            <?php foreach ($messages as $msg): ?>
+                <div class="message-card <?php echo $msg['is_read'] ? 'read' : 'unread'; ?> <?php echo $msg['is_replied'] ? 'replied' : ''; ?>">
+                    <div class="message-header">
+                        <div>
+                            <h3 class="message-subject"><?php echo htmlspecialchars($msg['Subject']); ?></h3>
+                            <p><strong>From:</strong> <?php echo htmlspecialchars($msg['Name']); ?> (<?php echo htmlspecialchars($msg['Email']); ?>)</p>
                         </div>
-
-                        <div class="reply-form-container">
-                            <form class="reply-email-form" data-message-id="<?php echo $message['id']; ?>">
-                                <div class="form-group">
-                                    <label for="reply_to_<?php echo $message['id']; ?>">To:</label>
-                                    <input type="email" id="reply_to_<?php echo $message['id']; ?>" class="reply-to" value="<?php echo htmlspecialchars($message['Email']); ?>" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="reply_from_<?php echo $message['id']; ?>">From:</label>
-                                    <input type="email" id="reply_from_<?php echo $message['id']; ?>" class="reply-from" value="your_email@example.com" readonly> </div>
-                                <div class="form-group">
-                                    <label for="reply_cc_<?php echo $message['id']; ?>">CC:</label>
-                                    <input type="email" id="reply_cc_<?php echo $message['id']; ?>" class="reply-cc">
-                                </div>
-                                <div class="form-group">
-                                    <label for="reply_subject_<?php echo $message['id']; ?>">Subject:</label>
-                                    <input type="text" id="reply_subject_<?php echo $message['id']; ?>" class="reply-subject" value="Re: <?php echo htmlspecialchars($message['Subject']); ?>" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="reply_message_<?php echo $message['id']; ?>">Your Message:</label>
-                                    <textarea id="reply_message_<?php echo $message['id']; ?>" class="reply-message" required></textarea>
-                                </div>
-                                <button type="submit" class="send-email-btn"><i class="fas fa-paper-plane"></i> Send Email</button>
-                            </form>
+                        <div class="message-meta">
+                            <p><i class="far fa-calendar-alt"></i> <?php echo date('M d, Y H:i', strtotime($msg['Time'])); ?></p>
                         </div>
                     </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
+                    <div class="message-body"><?php echo htmlspecialchars($msg['Message']); ?></div>
+                    <div class="message-actions">
+                        <?php if (!$msg['is_read']): ?>
+                            <form method="POST" style="display:inline;">
+                                <input type="hidden" name="id" value="<?php echo $msg['id']; ?>">
+                                <input type="hidden" name="action" value="mark_read">
+                                <button type="submit" class="btn-action btn-read"><i class="fas fa-check"></i> Read</button>
+                            </form>
+                        <?php endif; ?>
+                        <button type="button" class="btn-action btn-reply" data-id="<?php echo $msg['id']; ?>"><i class="fas fa-reply"></i> Reply</button>
+                        <form method="POST" style="display:inline;" onsubmit="return confirm('Delete permanently?');">
+                            <input type="hidden" name="id" value="<?php echo $msg['id']; ?>">
+                            <input type="hidden" name="action" value="delete">
+                            <button type="submit" class="btn-action btn-delete"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </div>
+                    <div class="reply-box" id="reply-<?php echo $msg['id']; ?>">
+                        <form class="reply-form" data-id="<?php echo $msg['id']; ?>">
+                            <textarea placeholder="Write reply..."></textarea>
+                            <button type="submit" class="btn-action btn-reply">Send Reply</button>
+                        </form>
+                    </div>
+                </div>
+            <?php endforeach; ?>
         </div>
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-column">
-                <h3>Lung TFDB</h3>
-                <p>A comprehensive database for lung cancer transcription factors with integrated multi-omics data and analysis tools.</p>
-                <div class="social-links">
-                    <a href="https://akkis-lab.github.io/ott-lab/index.html"><i class="fa-solid fa-globe"></i></a>
-                    <a href="https://www.linkedin.com/in/guruguhan-s/"><i class="fab fa-linkedin"></i></a>
-                    <a href="https://github.com/RustyAlgorithm44/Lung_TFDB"><i class="fab fa-github"></i></a>
-                </div>
-            </div>
-            
-            <div class="footer-column">
-                <h3>Quick Links</h3>
-                <ul class="footer-links">
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="contact.html">Contact Us</a></li>
-                    <li><a href="documentation.html">Documentation</a></li>
-                    <li><a href="admin/admin_login.php">Admin</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-column">
-                <h3>Resources</h3>
-                <ul class="footer-links">
-                    <li><a href="tutorials.html">Tutorials</a></li>
-                    <li><a href="faq.html">FAQ</a></li>
-                    <li><a href="sitemap.html">Sitemap</a></li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="copyright">
-            <p>&copy; 2025 SSNCCPR. All rights reserved.</p>
-        </div>
-    </footer>
-
     <script src="../js/jquery-3.6.0.min.js"></script>
     <script src="../js/main.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.btn-reply').click(function() {
+                const id = $(this).data('id');
+                $(`#reply-${id}`).slideToggle();
+            });
+
+            $('.reply-form').submit(function(e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+                $.ajax({
+                    url: 'admin_update_reply_status.php',
+                    type: 'POST',
+                    data: { id: id, action: 'mark_replied' },
+                    success: function(res) {
+                        if(res === 'Success') { alert('Replied!'); location.reload(); }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

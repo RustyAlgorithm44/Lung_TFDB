@@ -6,8 +6,8 @@ require 'db_connect.php';
 ini_set('memory_limit', '900M');
 
 // Fetch POST data and validate it
-$dataset = isset($_POST['dataset']) ? $_POST['dataset'] : '';
-$geneName = isset($_POST['geneName']) ? $_POST['geneName'] : '';
+$dataset = isset($_POST['dataset']) ? mysqli_real_escape_string($conn, $_POST['dataset']) : '';
+$geneName = isset($_POST['geneName']) ? mysqli_real_escape_string($conn, $_POST['geneName']) : '';
 
 $jitterEnabled = isset($_POST['addJitter']) ? 'TRUE' : 'FALSE';
 $jitterColor = isset($_POST['jitterColor']) ? $_POST['jitterColor'] : '#000000';

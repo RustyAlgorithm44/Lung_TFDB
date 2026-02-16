@@ -226,7 +226,7 @@
                 <div class="form-group">
                     <label for="dropdownSearch">Enter TF symbol:</label>
                     <input type="text" id="dropdownSearch" name="geneName" placeholder="Start typing..." autocomplete="off">
-                    <div id="dropdown"></div>
+                    <ul id="dropdown" class="gene-dropdown"></ul>
                 </div>
                 <button type="submit" class="submit-btn" id="submitBtn">
                     <i class="fas fa-search"></i> Search
@@ -320,8 +320,7 @@
         function populateDropdown(items) {
             dropdown.innerHTML = '';
             items.forEach(item => {
-                const option = document.createElement('div');
-                option.classList.add('option');
+                const option = document.createElement('li');
                 option.textContent = item;
                 option.addEventListener('click', function () {
                     dropdownSearch.value = item;
