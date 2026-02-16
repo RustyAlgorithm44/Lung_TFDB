@@ -8,22 +8,14 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $servername = "localhost";
-    $username_db = "tfdb_user";
-    $password_db = "tfdb_guest";
-    $dbname = "tfdb";
+require '../php/db_connect.php';
 
-    $conn = new mysqli($servername, $username_db, $password_db, $dbname);
+if (isset($_POST['action']) && $_POST['action'] == 'mark_replied' && isset($_POST['id'])) {
+    $id = intval($_POST['id']);
 
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    if (isset($_POST['action']) && $_POST['action'] == 'mark_replied' && isset($_POST['id'])) {
-        $id = intval($_POST['id']);
-
-        $stmt = $conn->prepare("UPDATE contact_form SET is_replied = 1, replied_at = CURRENT_TIMESTAMP WHERE id = ?");
-        $stmt->bind_param("i", $id);
+    // Set as replied AND read
+    $stmt = $conn->prepare("UPDATE contact_form SET is_replied = 1, replied_at = CURRENT_TIMESTAMP, is_read = 1, read_at = IFNULL(read_at, CURRENT_TIMESTAMP) WHERE id = ?");
+    $stmt->bind_param("i", $id);
 
         if ($stmt->execute()) {
             echo "Success";

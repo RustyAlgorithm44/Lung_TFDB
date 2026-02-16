@@ -265,15 +265,56 @@ $conn->close();
                         </form>
                     </div>
                     <div class="reply-box" id="reply-<?php echo $msg['id']; ?>">
-                        <form class="reply-form" data-id="<?php echo $msg['id']; ?>">
-                            <textarea placeholder="Write reply..."></textarea>
-                            <button type="submit" class="btn-action btn-reply">Send Reply</button>
+                        <form class="reply-form" 
+                              data-id="<?php echo $msg['id']; ?>" 
+                              data-email="<?php echo htmlspecialchars($msg['Email']); ?>" 
+                              data-subject="Re: <?php echo htmlspecialchars($msg['Subject']); ?>">
+                            <textarea placeholder="Write your reply to <?php echo htmlspecialchars($msg['Name']); ?>..." required></textarea>
+                            <button type="submit" class="btn-action btn-reply">
+                                <i class="fas fa-paper-plane"></i> Send Email Reply
+                            </button>
                         </form>
                     </div>
                 </div>
             <?php endforeach; ?>
         </div>
     </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Lung TFDB</h3>
+                <p>A comprehensive database for lung cancer transcription factors with integrated multi-omics data and analysis tools.</p>
+                <div class="social-links">
+                    <a href="https://akkis-lab.github.io/ott-lab/index.html"><i class="fa-solid fa-globe"></i></a>
+                    <a href="https://github.com/RustyAlgorithm44/Lung_TFDB"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="../contact.html">Contact Us</a></li>
+                    <li><a href="../documentation.html">Documentation</a></li>
+                    <li><a href="admin_login.php">Admin</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="../tutorials.html">Tutorials</a></li>
+                    <li><a href="../faq.html">FAQ</a></li>
+                    <li><a href="../sitemap.html">Sitemap</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2026 SSNCCPR. All rights reserved.</p>
+        </div>
+    </footer>
 
     <script src="../js/jquery-3.6.0.min.js"></script>
     <script src="../js/main.js"></script>
@@ -286,13 +327,43 @@ $conn->close();
 
             $('.reply-form').submit(function(e) {
                 e.preventDefault();
-                const id = $(this).data('id');
+                const form = $(this);
+                const btn = form.find('button');
+                const id = form.data('id');
+                const email = form.data('email');
+                const subject = form.data('subject');
+                const message = form.find('textarea').val();
+
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+
                 $.ajax({
-                    url: 'admin_update_reply_status.php',
+                    url: '../php/send_reply.php',
                     type: 'POST',
-                    data: { id: id, action: 'mark_replied' },
+                    data: { 
+                        id: id, 
+                        to: email, 
+                        subject: subject, 
+                        message: message 
+                    },
                     success: function(res) {
-                        if(res === 'Success') { alert('Replied!'); location.reload(); }
+                        try {
+                            const data = JSON.parse(res);
+                            if(data.status === 'success') {
+                                alert('Email sent and message marked as replied!');
+                                location.reload();
+                            } else {
+                                alert('Error: ' + data.message);
+                                btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send Email Reply');
+                            }
+                        } catch(e) {
+                            console.error(res);
+                            alert('Server error occurred.');
+                            btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send Email Reply');
+                        }
+                    },
+                    error: function() {
+                        alert('Ajax communication error.');
+                        btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send Email Reply');
                     }
                 });
             });

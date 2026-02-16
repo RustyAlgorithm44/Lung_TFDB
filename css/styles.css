@@ -293,42 +293,121 @@ footer {
 }
 
 /* Custom Gene Dropdown */
+
 .gene-dropdown {
+
     display: none;
+
     position: absolute;
-    top: 100%;
+
+    top: calc(100% - 5px);
+
     left: 0;
+
     width: 100%;
+
     max-height: 250px;
+
     overflow-y: auto;
+
     background-color: var(--card-bg);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+
+    border: 1px solid var(--primary-color);
+
+    border-top: none;
+
     border-radius: 0 0 0.5rem 0.5rem;
-    box-shadow: var(--shadow);
+
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
     z-index: 1001;
+
     list-style: none;
-    padding: 0;
+
+    padding: 5px 0;
+
     margin: 0;
+
 }
+
+
 
 .gene-dropdown li {
-    padding: 0.8rem 1.2rem;
+
+    padding: 0.7rem 1.2rem;
+
     cursor: pointer;
+
     transition: var(--transition);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
     color: var(--text-color);
+
+    font-size: 0.95rem;
+
 }
 
-.gene-dropdown li:last-child {
-    border-bottom: none;
-}
+
 
 .gene-dropdown li:hover {
+
     background-color: var(--primary-color);
+
     color: white;
+
 }
 
+
+
+/* Scrollbar styling for the dropdown */
+
+.gene-dropdown::-webkit-scrollbar {
+
+    width: 8px;
+
+}
+
+
+
+.gene-dropdown::-webkit-scrollbar-track {
+
+    background: transparent;
+
+}
+
+
+
+.gene-dropdown::-webkit-scrollbar-thumb {
+
+    background: #ccc;
+
+    border-radius: 4px;
+
+}
+
+
+
+.gene-dropdown::-webkit-scrollbar-thumb:hover {
+
+    background: #bbb;
+
+}
+
+
+
 /* Ensure form-group has relative positioning for dropdown */
+
 .form-group {
+
     position: relative;
+
+}
+
+
+
+/* Adjust input to feel connected when dropdown is open */
+
+input[type="text"]:focus + .gene-dropdown {
+
+    border-color: var(--primary-color);
+
 }
