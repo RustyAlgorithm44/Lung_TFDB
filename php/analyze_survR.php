@@ -425,8 +425,18 @@ run_analysis <- function(task) {
         legend.labs = levels(sub_data$group)
     )
     
+    # Map type to a descriptive x-axis label
+    label_map <- list(
+        "OS" = "Overall Survival (months)",
+        "DSS" = "Disease-Specific Survival (months)",
+        "DFS" = "Disease-Free Survival (months)",
+        "PFS" = "Progression-Free Survival (months)",
+        "RFS" = "Relapse-Free Survival (months)"
+    )
+    x_label <- if(!is.null(label_map[[type]])) label_map[[type]] else paste(type, "(months)")
+    
     # Change x axis label
-    p$plot <- p$plot + xlab("Time (months)")
+    p$plot <- p$plot + xlab(x_label)
 
     # Increase font size of everything
     p$plot <- p$plot + theme(
